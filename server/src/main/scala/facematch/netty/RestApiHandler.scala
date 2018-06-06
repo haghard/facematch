@@ -1,15 +1,15 @@
 package facematch.netty
 
 import java.nio.charset.StandardCharsets
-import java.nio.file.{ Files, Paths }
+import java.nio.file.{Files, Paths}
 import java.util.Base64
 
 import io.netty.channel._
 import io.netty.handler.codec.DecoderResult
 import io.netty.handler.codec.http._
 
-import scala.concurrent.{ ExecutionContext, Future }
-import scala.util.{ Failure, Success }
+import scala.concurrent.{ExecutionContext, Future}
+import scala.util.{Failure, Success}
 import HttpVersion._
 import HttpResponseStatus._
 import io.netty.channel.ChannelHandler.Sharable
@@ -97,31 +97,30 @@ class RestApiHandler(implicit ex: ExecutionContext) extends ChannelInboundHandle
   }
 
   override def channelRead(ctx: ChannelHandlerContext, msg: Object): Unit = {
+    import facematch.shared.HttpRoutes
     msg match {
       case req: FullHttpRequest =>
         req match {
-          case HttpMethod.POST -> Root / "api" / facematch.shared.HttpRoutes.compare =>
-            if (req.decoderResult == DecoderResult.SUCCESS)
-              RestCall[Compare2Faces].run(Compare2Faces(req.content.toString(StandardCharsets.UTF_8))).onComplete {
-                case Success(response) =>
-                  response
-                    .fold({ er => sendErrorResponse(ctx, er) }, { response =>
-                      ctx.channel().writeAndFlush(response).addListener(ChannelFutureListener.CLOSE)
-                    })
-                case Failure(error) =>
-                  sendErrorResponse(ctx, error)
-              }
-          case HttpMethod.POST -> Root / "api" / facematch.shared.HttpRoutes.recognize =>
-            if (req.decoderResult == DecoderResult.SUCCESS)
-              RestCall[FindOnPic].run(FindOnPic(req.content.toString(StandardCharsets.UTF_8))).onComplete {
-                case Success(response) =>
-                  response
-                    .fold({ er => sendErrorResponse(ctx, er) }, { response =>
-                      ctx.channel().writeAndFlush(response).addListener(ChannelFutureListener.CLOSE)
-                    })
-                case Failure(error) =>
-                  sendErrorResponse(ctx, error)
-              }
+          case HttpMethod.POST -> Root / "api" / HttpRoutes.compare if (req.decoderResult == DecoderResult.SUCCESS) =>
+            RestCall[Compare2Faces].run(Compare2Faces(req.content.toString(StandardCharsets.UTF_8))).onComplete {
+              case Success(response) =>
+                response
+                  .fold({ er => sendErrorResponse(ctx, er) }, { response =>
+                    ctx.channel().writeAndFlush(response).addListener(ChannelFutureListener.CLOSE)
+                  })
+              case Failure(error) =>
+                sendErrorResponse(ctx, error)
+            }
+          case HttpMethod.POST -> Root / "api" / HttpRoutes.recognize if (req.decoderResult == DecoderResult.SUCCESS) =>
+            RestCall[FindOnPic].run(FindOnPic(req.content.toString(StandardCharsets.UTF_8))).onComplete {
+              case Success(response) =>
+                response
+                  .fold({ er => sendErrorResponse(ctx, er) }, { response =>
+                    ctx.channel().writeAndFlush(response).addListener(ChannelFutureListener.CLOSE)
+                  })
+              case Failure(error) =>
+                sendErrorResponse(ctx, error)
+            }
           case other =>
             if (other.method == HttpMethod.GET && (other.uri == AssetsHandler.EmptyPath || other.uri.contains(AssetsHandler.ASSETS_SEGMENTS)))
               ctx.fireChannelRead(msg)
