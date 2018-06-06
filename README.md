@@ -6,7 +6,9 @@ sbt assembly && java -jar server/target/scala-2.12/facematch-0.1.jar
 
 # req
 pip install --upgrade imutils
+
 pip install opencv-python
+
 export PYTHONPATH=$PYTHONPATH:/Volumes/dev/github/facematch/python/:/Volumes/dev/github/facematch/python/align
 
 # issues
