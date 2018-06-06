@@ -2,7 +2,7 @@ package facematch.netty
 
 import java.util.concurrent.Executors
 
-import facematch.{ Admin, netty }
+import facematch.netty
 import io.netty.bootstrap.ServerBootstrap
 import io.netty.channel._
 import io.netty.channel.nio.NioEventLoopGroup
@@ -14,14 +14,12 @@ import io.netty.util.concurrent.DefaultEventExecutorGroup
 import scala.concurrent.ExecutionContext
 
 object HttpServer {
-
-  val restApiPool: java.util.concurrent.ExecutorService =
-    Executors.newFixedThreadPool(Runtime.getRuntime.availableProcessors, netty.NamedThreadFactory("api"))
-
-  def start(interface: String, port: Int, admin: Admin): Unit = {
+  def start(interface: String, port: Int): Unit = {
     val bossGroup = new NioEventLoopGroup(1, NamedThreadFactory("boss"))
     val workerGroup = new NioEventLoopGroup(Runtime.getRuntime.availableProcessors, NamedThreadFactory("worker"))
     val blockingGroup = new DefaultEventExecutorGroup(4, NamedThreadFactory("blocking-io"))
+    val restApiPool: java.util.concurrent.ExecutorService =
+      Executors.newFixedThreadPool(Runtime.getRuntime.availableProcessors, netty.NamedThreadFactory("api"))
 
     try {
       val bootstrap = new ServerBootstrap

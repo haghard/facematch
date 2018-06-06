@@ -16,12 +16,9 @@ trait OptsSupport {
 }
 
 object WebServer extends OptsSupport {
-  val HttpDispatcher = "akka.http.io-dispatcher"
-
   def main(args: Array[String]) {
     val opts: Map[String, String] = argsToOpts(args.toList)
     applySystemProperties(opts)
-    val admin = Admin("admin.email", "admin.password", "admin.db-password")
 
     val logo =
       """
@@ -32,6 +29,6 @@ object WebServer extends OptsSupport {
     """
 
     println(Console.GREEN + logo + Console.RESET)
-    netty.HttpServer.start("0.0.0.0", 8080, admin)
+    netty.HttpServer.start("0.0.0.0", 8080)
   }
 }
