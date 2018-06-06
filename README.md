@@ -13,13 +13,17 @@ export PYTHONPATH=$PYTHONPATH:/Volumes/dev/github/facematch/python/:/Volumes/dev
 
 # issues
 https://github.com/davidsandberg/facenet/issues/106
+
 https://github.com/davidsandberg/facenet/wiki/Validate-on-lfw
 
 
 # links
 https://blog.softwaremill.com/incorporating-facenet-into-play-framework-with-silhouette-authentication-4a8844849b62
+
 https://github.com/arunmandal53/facematch
+
 http://ramok.tech/2018/01/18/java-autonomous-driving-car-detection/
+
 http://ramok.tech/2018/02/24/java-art-generation-with-neural-style-transfer/
 
 
