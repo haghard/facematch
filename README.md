@@ -1,6 +1,5 @@
 # How to run
 
-https://github.com/vmunier/sbt-web-scalajs
 sbt assembly && java -jar server/target/scala-2.12/facematch-0.1.jar
 
 
