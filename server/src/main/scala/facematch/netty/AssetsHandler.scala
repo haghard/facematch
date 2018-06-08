@@ -55,7 +55,7 @@ class AssetsHandler extends SimpleChannelInboundHandler[FullHttpRequest] {
       val path = sanitizeUri(uri)
       if (path.isEmpty || path == EmptyPath) {
         val appPage = facematch.js.FaceAuthScript().render
-        val r = new DefaultFullHttpResponse(HTTP_1_1, OK, ByteBufs.stringToByteBuf(appPage))
+        val r = new DefaultFullHttpResponse(HTTP_1_1, OK, ByteBufs.toByteBuf(appPage))
         r.headers.set(HttpHeaderNames.CONTENT_TYPE, HTML)
         r.headers.set(HttpHeaderNames.CONTENT_LENGTH, r.content.readableBytes)
         ctx.channel().writeAndFlush(r).addListener(ChannelFutureListener.CLOSE)

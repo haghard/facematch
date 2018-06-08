@@ -51,16 +51,15 @@ def getFace(img):
                 bb[2] = np.minimum(det[2] + margin / 2, img_size[1])
                 bb[3] = np.minimum(det[3] + margin / 2, img_size[0])
                 cropped = img[bb[1]:bb[3], bb[0]:bb[2], :]
-                resized = cv2.resize(cropped, (input_image_size,input_image_size),interpolation=cv2.INTER_CUBIC)
+                resized = cv2.resize(cropped, (input_image_size,input_image_size), interpolation = cv2.INTER_CUBIC)
                 prewhitened = facenet.prewhiten(resized)
                 faces.append({'face':resized,'rect':[bb[0],bb[1],bb[2],bb[3]],'embedding':getEmbedding(prewhitened)})
     return faces
 
 def getEmbedding(resized):
     reshaped = resized.reshape(-1,input_image_size,input_image_size,3)
-    feed_dict = {images_placeholder: reshaped, phase_train_placeholder: False}
-    embedding = sess.run(embeddings, feed_dict=feed_dict)
-    #saver.save(sess, './model')
+    feed_dict = {  images_placeholder: reshaped, phase_train_placeholder: False  }
+    embedding = sess.run(embeddings, feed_dict =  feed_dict)
     return embedding
 
 def compare2face(img1,img2):
@@ -102,4 +101,17 @@ def data_uri_to_cv2_img(base64Uri):
     img = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
     return img
 
-compareFaces()
+def signature():
+    nparr1 = np.fromstring(args.face1.decode('base64'), np.uint8)
+    nparr2 = np.fromstring(args.face2.decode('base64'), np.uint8)
+    img1 = cv2.imdecode(nparr1, cv2.IMREAD_COLOR)
+    img2 = cv2.imdecode(nparr2, cv2.IMREAD_COLOR)
+    face1 = getFace(img1)
+    face2 = getFace(img2)
+    #dist = np.sqrt(np.sum(np.square(np.subtract(face1[0]['embedding'], face2[0]['embedding']))))
+    print(str(face1[0]['embedding']) + ":" + str(face2[0]['embedding']))
+    #print(dist)
+    #return dist
+
+signature()
+#compareFaces()

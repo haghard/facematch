@@ -21,6 +21,8 @@ https://blog.softwaremill.com/incorporating-facenet-into-play-framework-with-sil
 
 https://github.com/arunmandal53/facematch
 
+https://arxiv.org/abs/1503.03832
+
 http://ramok.tech/2018/01/18/java-autonomous-driving-car-detection/
 
 http://ramok.tech/2018/02/24/java-art-generation-with-neural-style-transfer/

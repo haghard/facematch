@@ -26,8 +26,9 @@ lazy val server = (project in file("server")).settings(
     "com.vmunier"          %%   "scalajs-scripts"      % "1.1.0",
     "com.lihaoyi"          %%   "scalatags"            % "0.6.7",
     "org.webjars"          %    "bootstrap"            % "3.3.6",
-    "io.netty"             %    "netty-all"            % "4.1.24.Final" withSources() withJavadoc()
-    //"com.github.mpilquist" %%   "simulacrum"           % "0.12.0"
+    "io.netty"             %    "netty-all"            % "4.1.24.Final" withSources() withJavadoc(),
+    "com.twitter"          %%   "algebird-core"        % "0.13.4" withSources(),
+    "org.scalanlp"         %%   "breeze"               % "0.13.2"
     //"org.scalaz"          %%    "scalaz-ioeffect"      % "2.3.0",
   ),
   version := "0.1",

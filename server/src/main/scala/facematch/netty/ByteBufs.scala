@@ -7,7 +7,7 @@ import io.netty.util.CharsetUtil
 
 object ByteBufs {
 
-  def stringToByteBuf(str: String): ByteBuf =
+  def toByteBuf(str: String): ByteBuf =
     if (str.isEmpty) Unpooled.EMPTY_BUFFER
     else Unpooled.wrappedBuffer(str.getBytes(CharsetUtil.UTF_8))
 
