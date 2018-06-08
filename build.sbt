@@ -34,8 +34,6 @@ lazy val server = (project in file("server")).settings(
   version := "0.1",
   WebKeys.packagePrefix in Assets := "public/",
   managedClasspath in Runtime += (packageBin in Assets).value,
-  // Compile the project before generating Eclipse files, so that generated .scala or .class files for Twirl templates are present
-  //EclipseKeys.preTasks := Seq(compile in Compile),
   mainClass in assembly := Some("facematch.WebServer"),
   assemblyJarName in assembly := s"facematch-${version.value}.jar"
 ).enablePlugins(SbtWeb, JavaAppPackaging).
@@ -72,11 +70,9 @@ onLoad in Global := (onLoad in Global).value andThen {s: State => "project serve
 
 def copyJsArtifacts() = (baseDirectory) map { dir =>
   def execute() = {
-    //IO.copyFile(file(s"${dir}/src/main/resources/jsgantt-improved/gantt.js"), file("licensing.bat")),
     Process(s"cp ${dir}/src/main/resources/jquery.js     ${dir}/target/web/web-modules/main/webjars/lib").!
     Process(s"cp ${dir}/src/main/resources/webcam.min.js ${dir}/target/web/web-modules/main/webjars/lib").!
     Process(s"cp ${dir}/src/main/resources/camera.js     ${dir}/target/web/web-modules/main/webjars/lib").!
-
     Process(s"cp ${dir}/src/main/resources/cam.css ${dir}/target/web/web-modules/main/webjars/lib/bootstrap/css").!
   }
 
