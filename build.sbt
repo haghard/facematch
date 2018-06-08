@@ -2,6 +2,7 @@ import sbt.Resolver
 
 import scala.sys.process.Process
 import com.scalapenos.sbt.prompt.SbtPrompt.autoImport._
+import sbtcrossproject.CrossPlugin.autoImport.{crossProject, CrossType}
 
 import scalariform.formatter.preferences._
 
@@ -42,7 +43,7 @@ lazy val server = (project in file("server")).settings(
 lazy val client = (project in file("client")).settings(
   scalaVersion := scalaV,
   resolvers ++= Seq(Resolver.jcenterRepo),
-  scalaJSUseMainModuleInitializer :=  false,
+  scalaJSUseMainModuleInitializer := false,
 
   jsDependencies +=
      "org.webjars" % "jquery" % "2.2.1" / "jquery.js" minified "jquery.min.js",
@@ -55,18 +56,19 @@ lazy val client = (project in file("client")).settings(
 ).enablePlugins(ScalaJSPlugin, ScalaJSWeb).
   dependsOn(sharedJs)
 
-lazy val shared = (crossProject.crossType(CrossType.Pure) in file("shared"))
+lazy val shared = crossProject(JSPlatform, JVMPlatform)
+  .crossType(CrossType.Pure)
   .settings(
     scalaVersion := scalaV,
     libraryDependencies ++= Seq("com.lihaoyi"  %%% "upickle" % "0.6.6")
-  ).jsConfigure(_ enablePlugins ScalaJSWeb)
+  )
+
 
 lazy val sharedJvm = shared.jvm
 lazy val sharedJs = shared.js
 
 // loads the server project at sbt startup
 onLoad in Global := (onLoad in Global).value andThen {s: State => "project server" :: s}
-
 
 def copyJsArtifacts() = (baseDirectory) map { dir =>
   def execute() = {
