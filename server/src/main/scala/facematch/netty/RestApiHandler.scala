@@ -1,15 +1,15 @@
 package facematch.netty
 
 import java.nio.charset.StandardCharsets
-import java.nio.file.{Files, Paths}
+import java.nio.file.{ Files, Paths }
 import java.util.Base64
 
 import io.netty.channel._
 import io.netty.handler.codec.DecoderResult
 import io.netty.handler.codec.http._
 
-import scala.concurrent.{ExecutionContext, Future}
-import scala.util.{Failure, Success}
+import scala.concurrent.{ ExecutionContext, Future }
+import scala.util.{ Failure, Success }
 import HttpVersion._
 import HttpResponseStatus._
 import breeze.linalg.DenseVector
@@ -84,7 +84,7 @@ object RestApiHandler {
 
         import breeze.stats._
         import breeze.linalg._
-        import breeze.linalg.functions.{manhattanDistance, euclideanDistance, cosineDistance, chebyshevDistance}
+        import breeze.linalg.functions.{ manhattanDistance, euclideanDistance, cosineDistance, chebyshevDistance }
         val euclidean = euclideanDistance(a, b)
         val cos = cosineDistance(a, b)
         val manh = manhattanDistance(a, b)
