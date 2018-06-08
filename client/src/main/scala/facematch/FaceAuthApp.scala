@@ -5,30 +5,44 @@ import org.scalajs.dom
 import scala.scalajs.js.Dynamic.{ global => jscript }
 import scala.scalajs.js.annotation.JSExport
 import org.querki.jquery._
+import org.scalajs.dom.ext.Ajax
 import org.scalajs.dom.raw.HTMLImageElement
-import scala.scalajs.js.{ Dynamic, JSON }
+
+import scala.scalajs.js.JSON
+import scala.util.{ Failure, Success }
 
 @JSExport
 object FaceAuthApp {
-  val imageId = "im"
+  val photoId = "user_img"
+  import scala.concurrent.ExecutionContext.Implicits.global
 
   @JSExport
   def main(where: String, photo: String): Unit = {
     $(dom.document).ready(() => {
-      val selector = s"#$where"
-      jscript.startCamera(selector)
+      jscript.startCamera(s"#$where")
 
-      //https://github.com/jhuckaby/webcamjs/blob/master/demos/basic.html
       dom.window.setTimeout({ () =>
         dom.console.log("take snapshot")
-        jscript.takeSnapshot(photo, imageId)
+        jscript.takeSnapshot(photo, photoId)
 
-        //val image = $(s"#${photo}")
-        val image = dom.document.getElementById(imageId).asInstanceOf[HTMLImageElement]
+        val image = dom.document.getElementById(photoId).asInstanceOf[HTMLImageElement]
         val base64ImageCnt = image.src.substring(23)
-        dom.console.log(base64ImageCnt.length + " : " + base64ImageCnt.take(40))
 
-        val reqSettings: JQueryAjaxSettings =
+        Ajax.post(
+          url = "/api/" + facematch.shared.HttpRoutes.compare,
+          data = base64ImageCnt,
+          timeout = 15000
+        ).map(r => JSON.parse(r.responseText))
+          .onComplete {
+            case Success(parsedJson) =>
+              val json = parsedJson.asInstanceOf[scala.scalajs.js.Dictionary[scala.scalajs.js.Any]]
+              val acc = json(facematch.shared.HttpRoutes.key).toString
+              dom.console.log(acc)
+            case Failure(error) =>
+              dom.console.log(s"error: ${error.getMessage}")
+          }
+
+        /*val reqSettings: JQueryAjaxSettings =
           Dynamic.literal(
             method = "POST",
             data = base64ImageCnt,
@@ -43,6 +57,7 @@ object FaceAuthApp {
             }).asInstanceOf[JQueryAjaxSettings]
 
         $.ajax(reqSettings)
+        */
       }, 4000l)
     })
   }

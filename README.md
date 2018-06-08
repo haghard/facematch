@@ -27,6 +27,9 @@ http://ramok.tech/2018/01/18/java-autonomous-driving-car-detection/
 
 http://ramok.tech/2018/02/24/java-art-generation-with-neural-style-transfer/
 
+https://github.com/portable-scala/sbt-crossproject
+
+https://github.com/jhuckaby/webcamjs/blob/master/demos/basic.html
 
 # License
 

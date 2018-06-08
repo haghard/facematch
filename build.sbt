@@ -13,7 +13,6 @@ scalariformPreferences := scalariformPreferences.value
 
 val scalaV = "2.12.6"
 
-
 lazy val server = (project in file("server")).settings(
   promptTheme := com.scalapenos.sbt.prompt.PromptThemes.ScalapenosTheme,
   scalaVersion := scalaV,
@@ -60,7 +59,7 @@ lazy val shared = crossProject(JSPlatform, JVMPlatform)
   .crossType(CrossType.Pure)
   .settings(
     scalaVersion := scalaV,
-    libraryDependencies ++= Seq("com.lihaoyi"  %%% "upickle" % "0.6.6")
+    libraryDependencies ++= Seq("com.lihaoyi" %%% "upickle" % "0.6.6")
   )
 
 
