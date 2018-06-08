@@ -44,7 +44,7 @@ lazy val server = (project in file("server")).settings(
 lazy val client = (project in file("client")).settings(
   scalaVersion := scalaV,
   resolvers ++= Seq(Resolver.jcenterRepo),
-  scalaJSUseMainModuleInitializer := false,
+  scalaJSUseMainModuleInitializer :=  false,
 
   jsDependencies +=
      "org.webjars" % "jquery" % "2.2.1" / "jquery.js" minified "jquery.min.js",
