@@ -74,14 +74,6 @@ object RestApiHandler {
         println("vs: " + a.length)
         println("vs: " + b.length)
 
-        /*
-        import com.twitter.algebird.MinHasher32
-        val hasher = new MinHasher32(1.0, 1024) //size 1 kb
-        val sigA = a.map(elem => hasher.init(elem.toString)).reduce(hasher.plus(_, _))
-        val sigB = b.map(elem => hasher.init(elem.toString)).reduce(hasher.plus(_, _))
-        println(s"similarity ${hasher.similarity(sigA, sigB)}")
-        */
-
         import breeze.stats._
         import breeze.linalg._
         import breeze.linalg.functions.{ manhattanDistance, euclideanDistance, cosineDistance, chebyshevDistance }

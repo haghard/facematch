@@ -31,8 +31,7 @@ object FaceAuthApp {
         Ajax.post(
           url = "/api/" + facematch.shared.HttpRoutes.compare,
           data = base64ImageCnt,
-          timeout = 15000
-        ).map(r => JSON.parse(r.responseText))
+          timeout = 15000).map(r => JSON.parse(r.responseText))
           .onComplete {
             case Success(parsedJson) =>
               val json = parsedJson.asInstanceOf[scala.scalajs.js.Dictionary[scala.scalajs.js.Any]]
