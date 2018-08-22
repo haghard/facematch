@@ -2,18 +2,20 @@ package facematch
 
 import org.scalajs.dom
 
-import scala.scalajs.js.Dynamic.{ global => jscript }
+import scala.scalajs.js.Dynamic.{global => jscript}
 import scala.scalajs.js.annotation.JSExport
 import org.querki.jquery._
 import org.scalajs.dom.ext.Ajax
 import org.scalajs.dom.raw.HTMLImageElement
 
 import scala.scalajs.js.JSON
-import scala.util.{ Failure, Success }
+import scala.util.{Failure, Success}
 
 @JSExport
 object FaceAuthApp {
   val photoId = "user_img"
+  val timeoutMillis = 15000
+
   import scala.concurrent.ExecutionContext.Implicits.global
 
   @JSExport
@@ -31,7 +33,8 @@ object FaceAuthApp {
         Ajax.post(
           url = "/api/" + facematch.shared.HttpRoutes.compare,
           data = base64ImageCnt,
-          timeout = 15000).map(r => JSON.parse(r.responseText))
+          timeout = timeoutMillis)
+          .map(r => JSON.parse(r.responseText))
           .onComplete {
             case Success(parsedJson) =>
               val json = parsedJson.asInstanceOf[scala.scalajs.js.Dictionary[scala.scalajs.js.Any]]

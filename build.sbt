@@ -27,15 +27,13 @@ lazy val server = (project in file("server")).settings(
     "com.lihaoyi"          %%   "scalatags"            % "0.6.7",
     "org.webjars"          %    "bootstrap"            % "3.3.6",
     "io.netty"             %    "netty-all"            % "4.1.24.Final" withSources() withJavadoc(),
-    "org.scalanlp"         %%   "breeze"               % "0.13.2"
-    //"org.scalaz"          %%    "scalaz-ioeffect"      % "2.3.0",
-  ),
+    "org.scalanlp"         %%   "breeze"               % "0.13.2"),
   version := "0.1",
   WebKeys.packagePrefix in Assets := "public/",
   managedClasspath in Runtime += (packageBin in Assets).value,
   mainClass in assembly := Some("facematch.WebServer"),
   assemblyJarName in assembly := s"facematch-${version.value}.jar"
-).enablePlugins(SbtWeb, JavaAppPackaging).
+).enablePlugins(SbtWeb).
   dependsOn(sharedJvm)
 
 lazy val client = (project in file("client")).settings(

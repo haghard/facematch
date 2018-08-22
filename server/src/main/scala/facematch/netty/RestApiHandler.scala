@@ -66,24 +66,19 @@ object RestApiHandler {
         */
 
         val result = s"python python/facematch.py --face1=${arg.base64ImageCnt} --face2=$haghard".!!
-        val seqments = result.split("\n")
-        val vector = seqments.tail.mkString("").replaceAll("[\\[\\]]", "")
+        val segments = result.split("\n")
+        val vector = segments.tail.mkString("").replaceAll("[\\[\\]]", "")
         val vs = vector.split(":")
         val a = parse(vs(0))
         val b = parse(vs(1))
-        println("vs: " + a.length)
-        println("vs: " + b.length)
-
-        import breeze.stats._
-        import breeze.linalg._
+        println(s"lengths [src:${a.length} desc:${b.length}]")
         import breeze.linalg.functions.{ manhattanDistance, euclideanDistance, cosineDistance, chebyshevDistance }
         val euclidean = euclideanDistance(a, b)
         val cos = cosineDistance(a, b)
         val manh = manhattanDistance(a, b)
         val chebys = chebyshevDistance(a, b)
-        println(euclidean + "  " + cos + " " + manh + " " + chebys)
-
-        val r = new DefaultFullHttpResponse(HTTP_1_1, OK, ByteBufs.toByteBuf(s"""{ "${HttpRoutes.key}":$euclidean }"""))
+        println("euclidean:" + euclidean + " cosine:" + cos + " manhattan:" + manh + " chebyshev:" + chebys)
+        val r = new DefaultFullHttpResponse(HTTP_1_1, OK, ByteBufs.toByteBuf(s"""{"${HttpRoutes.key}":$euclidean}"""))
         r.headers.set(HttpHeaderNames.CONTENT_TYPE, JsonContentType)
         r.headers.set(HttpHeaderNames.CONTENT_LENGTH, r.content.readableBytes)
         Right(r)
@@ -99,12 +94,12 @@ object RestApiHandler {
         val uri = "./users/haghard_grandparents.jpg"
         val result = s"python python/detect_faces.py --img=$uri --face=${arg.base64ImageCnt}".!!
         println(result)
-        val seqments = result.split("\n")
-        val r = new DefaultFullHttpResponse(HTTP_1_1, OK, ByteBufs.toByteBuf(s"""{ "${HttpRoutes.key}":${seqments.last} }"""))
+        val segments = result.split("\n")
+        val r = new DefaultFullHttpResponse(HTTP_1_1, OK, ByteBufs.toByteBuf(s"""{ "${HttpRoutes.key}":${segments.last} }"""))
         r.headers.set(HttpHeaderNames.CONTENT_TYPE, JsonContentType)
         r.headers.set(HttpHeaderNames.CONTENT_LENGTH, r.content.readableBytes)
         Right(r)
-      }.recover {
+      } recover {
         case NonFatal(ex) =>
           ex.printStackTrace
           Left(ex)
