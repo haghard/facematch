@@ -25,6 +25,7 @@ object ByteBufs {
       }) {
         out.write(chunk, 0, bytesAvailableToRead)
       }
+      out.flush
       out.toByteArray
     } finally out.close()
   }
