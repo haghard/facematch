@@ -2,14 +2,14 @@ package facematch
 
 import org.scalajs.dom
 
-import scala.scalajs.js.Dynamic.{global => jscript}
+import scala.scalajs.js.Dynamic.{ global => jscript }
 import scala.scalajs.js.annotation.JSExport
 import org.querki.jquery._
 import org.scalajs.dom.ext.Ajax
 import org.scalajs.dom.raw.HTMLImageElement
 
 import scala.scalajs.js.JSON
-import scala.util.{Failure, Success}
+import scala.util.{ Failure, Success }
 
 @JSExport
 object FaceAuthApp {
