@@ -26,7 +26,7 @@ lazy val server = (project in file("server")).settings(
     "com.vmunier"          %%   "scalajs-scripts"      % "1.1.0",
     "com.lihaoyi"          %%   "scalatags"            % "0.6.7",
     "org.webjars"          %    "bootstrap"            % "3.3.6",
-    "io.netty"             %    "netty-all"            % "4.1.24.Final" withSources() withJavadoc(),
+    "io.netty"             %    "netty-all"            % "4.1.29.Final" withSources() withJavadoc(),
     "org.scalanlp"         %%   "breeze"               % "0.13.2"),
   version := "0.1",
   WebKeys.packagePrefix in Assets := "public/",
