@@ -58,7 +58,12 @@ object RestApiHandler {
   implicit def instance0(implicit ex: ExecutionContext): RestCall[Compare2Faces] =
     (arg: Compare2Faces) =>
       Future {
-        val haghard = Base64.getEncoder.encodeToString(Files.readAllBytes(Paths.get("./users/haghard_rotated.jpg")))
+        val haghard = Base64.getEncoder.encodeToString(Files.readAllBytes(Paths.get("./users/haghard.jpg")))
+
+        //val a0 = Base64.getEncoder.encodeToString(Files.readAllBytes(Paths.get("./users/Ariel_Sharon_0002.jpg")))
+        //val b0 = Base64.getEncoder.encodeToString(Files.readAllBytes(Paths.get("./users/Ariel_Sharon_0003.jpg")))
+        //val c0 = Base64.getEncoder.encodeToString(Files.readAllBytes(Paths.get("./users/Gerhard_Schroeder_0001.jpg")))
+
         /*
         println(haghard.length + " /" + base64ImageCnt.length)
         println(legorby.length + " /" + base64ImageCnt.length)

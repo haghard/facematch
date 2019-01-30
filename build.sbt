@@ -11,7 +11,7 @@ scalariformPreferences := scalariformPreferences.value
     .setPreference(AlignParameters, true)
     .setPreference(AlignSingleLineCaseStatements, true)
 
-val scalaV = "2.12.6"
+val scalaV = "2.12.8"
 
 lazy val server = (project in file("server")).settings(
   promptTheme := com.scalapenos.sbt.prompt.PromptThemes.ScalapenosTheme,
