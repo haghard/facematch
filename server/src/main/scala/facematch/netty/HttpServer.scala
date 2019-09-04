@@ -57,7 +57,7 @@ object HttpServer {
     }
 
     Runtime.getRuntime.addShutdownHook(new Thread(new Runnable {
-      override def run = {
+      override def run: Unit = {
         bossGroup.shutdownGracefully()
         workerGroup.shutdownGracefully()
         blockingGroup.shutdownGracefully()

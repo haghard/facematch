@@ -6,7 +6,7 @@ import cv2
 import argparse
 import time
 
-executionFolder = "/Volumes/dev/projects/scala/play-silhouette-face-authentication/python/"
+executionFolder = "/Volumes/dev/github/facematch/python/"
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--face1", type = str, required=True)
@@ -29,7 +29,10 @@ sess = tf.Session()
 pnet, rnet, onet = detect_face.create_mtcnn(sess, executionFolder + 'align')
 
 # read 20170512-110547 model file downloaded from https://drive.google.com/file/d/0B5MzpY9kBtDVZ2RpVDYwWmxoSUk
-facenet.load_model(executionFolder + "20170512-110547/20170512-110547.pb")
+#facenet.load_model(executionFolder + "20170512-110547/20170512-110547.pb")
+
+#https://github.com/arunmandal53/facematch
+facenet.load_model(executionFolder + "20180408-102900/20180408-102900.pb")
 
 # Get input and output tensors
 images_placeholder = tf.get_default_graph().get_tensor_by_name("input:0")

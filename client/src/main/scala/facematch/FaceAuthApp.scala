@@ -60,7 +60,7 @@ object FaceAuthApp {
 
         $.ajax(reqSettings)
         */
-      }, 3000l)
+      }, 3000L)
     })
   }
 }

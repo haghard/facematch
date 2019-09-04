@@ -64,6 +64,7 @@ class AssetsHandler extends SimpleChannelInboundHandler[FullHttpRequest] {
         Option(defaultClassLoader.getResource(assertUri)) flatMap ResourceFile.apply match {
           case Some(AssetFile(url, length, lastModified)) =>
             val mimeType = parseMimeType(assertUri.substring(assertUri.lastIndexOf('.') + 1, assertUri.length))
+            //println(s"load: $uri")
             writeAsset(url, assertUri, length, mimeType, lastModified, ctx)
           case _ =>
             println(s"Unknown content: $uri")
@@ -78,7 +79,7 @@ class AssetsHandler extends SimpleChannelInboundHandler[FullHttpRequest] {
   }
 
   private def writeAsset(url: URL, resource: String, fileLength: Long, mimeType: String,
-    lastModified: Long, ctx: ChannelHandlerContext) = {
+    lastModified: Long, ctx: ChannelHandlerContext): Unit = {
     val _ =
       try {
         //val bts = org.apache.commons.io.IOUtils.toByteArray(url.openStream)

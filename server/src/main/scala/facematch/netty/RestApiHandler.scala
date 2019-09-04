@@ -29,9 +29,9 @@ object RestApiHandler {
   case class State(vector: DenseVector[Double], builder: StringBuilder = new StringBuilder,
     ind: Int = 0, entered: Boolean = false)
 
-  private def parse(originVector: String): DenseVector[Double] = {
+  private def parse(originVector: String, size: Int): DenseVector[Double] = {
     val state =
-      originVector.foldLeft(State(DenseVector.zeros[Double](128))) { (state, ch) =>
+      originVector.foldLeft(State(DenseVector.zeros[Double](size))) { (state, ch) =>
         if (Character.isDigit(ch) || ch == '-' || ch == '.' || ch == 'e') {
           if (!state.entered)
             state.copy(entered = true, builder = state.builder.append(ch))
@@ -64,29 +64,42 @@ object RestApiHandler {
         //val b0 = Base64.getEncoder.encodeToString(Files.readAllBytes(Paths.get("./users/Ariel_Sharon_0003.jpg")))
         //val c0 = Base64.getEncoder.encodeToString(Files.readAllBytes(Paths.get("./users/Gerhard_Schroeder_0001.jpg")))
 
-        /*
-        println(haghard.length + " /" + base64ImageCnt.length)
-        println(legorby.length + " /" + base64ImageCnt.length)
-        println(mads.length + " /" + base64ImageCnt.length)
-        */
+        //println(haghard.length + " / " + arg.base64ImageCnt.length)
+        //println(legorby.length + " /" + base64ImageCnt.length)
+        //println(mads.length + " /" + base64ImageCnt.length)
 
         val result = s"python python/facematch.py --face1=${arg.base64ImageCnt} --face2=$haghard".!!
         val segments = result.split("\n")
+
         val vector = segments.tail.mkString("").replaceAll("[\\[\\]]", "")
+
         val vs = vector.split(":")
-        val a = parse(vs(0))
-        val b = parse(vs(1))
-        println(s"lengths [src:${a.length} desc:${b.length}]")
-        import breeze.linalg.functions.{ manhattanDistance, euclideanDistance, cosineDistance, chebyshevDistance }
-        val euclidean = euclideanDistance(a, b)
-        val cos = cosineDistance(a, b)
-        val manh = manhattanDistance(a, b)
-        val chebys = chebyshevDistance(a, b)
-        println("euclidean:" + euclidean + " cosine:" + cos + " manhattan:" + manh + " chebyshev:" + chebys)
-        val r = new DefaultFullHttpResponse(HTTP_1_1, OK, ByteBufs.toByteBuf(s"""{"${HttpRoutes.key}":$euclidean}"""))
-        r.headers.set(HttpHeaderNames.CONTENT_TYPE, JsonContentType)
-        r.headers.set(HttpHeaderNames.CONTENT_LENGTH, r.content.readableBytes)
-        Right(r)
+
+        if (vs.size == 2) {
+
+          /*
+            in facematch.py 2 model can be used: 20170512-110547.pb and 20180408-102900.pb
+            for
+              20170512-110547.pb output size == 128
+              20180408-102900.pb output size == 521
+              so please pass 128 or 512 in parse method
+          */
+          val a = parse(vs(0), 512)
+          val b = parse(vs(1), 512)
+          //println(s"a: [${a.data.mkString(",")}]")
+          //println(s"b: [${b.data.mkString(",")}]")
+          println(s"lengths [src:${a.length} desc:${b.length}]")
+          import breeze.linalg.functions.{ manhattanDistance, euclideanDistance, cosineDistance, chebyshevDistance }
+          val euclidean = euclideanDistance(a, b)
+          val cos = cosineDistance(a, b)
+          val manh = manhattanDistance(a, b)
+          val chebys = chebyshevDistance(a, b)
+          println("euclidean:" + euclidean + " cosine:" + cos + " manhattan:" + manh + " chebyshev:" + chebys)
+          val r = new DefaultFullHttpResponse(HTTP_1_1, OK, ByteBufs.toByteBuf(s"""{"${HttpRoutes.key}":$euclidean}"""))
+          r.headers.set(HttpHeaderNames.CONTENT_TYPE, JsonContentType)
+          r.headers.set(HttpHeaderNames.CONTENT_LENGTH, r.content.readableBytes)
+          Right(r)
+        } else throw new Exception("Facematch error.")
       } recover {
         case NonFatal(ex) =>
           ex.printStackTrace
