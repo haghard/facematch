@@ -30,6 +30,9 @@ pnet, rnet, onet = detect_face.create_mtcnn(sess, executionFolder + 'align')
 # read 20170512-110547 model file downloaded from https://drive.google.com/file/d/0B5MzpY9kBtDVZ2RpVDYwWmxoSUk
 #facenet.load_model(executionFolder + "20170512-110547/20170512-110547.pb")
 
+#https://drive.google.com/open?id=1EXPBSXwTaqrSC0OhUdXNmKSh9qJUQ55-
+#facenet.load_model(executionFolder + "20180402-114759/20180402-114759.pb")
+
 #https://github.com/arunmandal53/facematch
 facenet.load_model(executionFolder + "20180408-102900/20180408-102900.pb")
 

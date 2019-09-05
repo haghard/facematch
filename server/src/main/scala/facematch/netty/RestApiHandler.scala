@@ -64,9 +64,8 @@ object RestApiHandler {
         //val b0 = Base64.getEncoder.encodeToString(Files.readAllBytes(Paths.get("./users/Ariel_Sharon_0003.jpg")))
         //val c0 = Base64.getEncoder.encodeToString(Files.readAllBytes(Paths.get("./users/Gerhard_Schroeder_0001.jpg")))
 
-        //println(haghard.length + " / " + arg.base64ImageCnt.length)
+        println(haghard.length + " / " + arg.base64ImageCnt.length)
         //println(legorby.length + " /" + base64ImageCnt.length)
-        //println(mads.length + " /" + base64ImageCnt.length)
 
         val result = s"python python/facematch.py --face1=${arg.base64ImageCnt} --face2=$haghard".!!
         val segments = result.split("\n")
@@ -76,14 +75,15 @@ object RestApiHandler {
         val vs = vector.split(":")
 
         if (vs.size == 2) {
-
           /*
-            in facematch.py 2 model can be used: 20170512-110547.pb and 20180408-102900.pb
+            in facematch.py 3 model can be used: 20170512-110547.pb, 20180408-102900.pb, and 20180408-102900.pb
             for
-              20170512-110547.pb output size == 128
-              20180408-102900.pb output size == 521
+              20170512-110547.pb output size equal to 128
+              20180408-102900.pb output size equal to 521
+              20180408-102900.pb output size equal to 521
               so please pass 128 or 512 in parse method
           */
+
           val a = parse(vs(0), 512)
           val b = parse(vs(1), 512)
           //println(s"a: [${a.data.mkString(",")}]")
@@ -99,7 +99,7 @@ object RestApiHandler {
           r.headers.set(HttpHeaderNames.CONTENT_TYPE, JsonContentType)
           r.headers.set(HttpHeaderNames.CONTENT_LENGTH, r.content.readableBytes)
           Right(r)
-        } else throw new Exception("Facematch error.")
+        } else throw new Exception("Facematch error")
       } recover {
         case NonFatal(ex) =>
           ex.printStackTrace
@@ -109,7 +109,7 @@ object RestApiHandler {
   implicit def instance1(implicit ex: ExecutionContext): RestCall[FindOnPicture] =
     (arg: FindOnPicture) =>
       Future {
-        val uri = "./users/haghard_grandparents.jpg"
+        val uri = "./users/haghard_legorby1.jpg" //haghard_olga | haghard_grandparents | haghard_legorby2
         val result = s"python python/detect_faces.py --img=$uri --face=${arg.base64ImageCnt}".!!
         println(result)
         val segments = result.split("\n")

@@ -28,11 +28,18 @@ sess = tf.Session()
 # read pnet, rnet, onet models from align directory and files are det1.npy, det2.npy, det3.npy
 pnet, rnet, onet = detect_face.create_mtcnn(sess, executionFolder + 'align')
 
-# read 20170512-110547 model file downloaded from https://drive.google.com/file/d/0B5MzpY9kBtDVZ2RpVDYwWmxoSUk
+
+#https://drive.google.com/file/d/0B5MzpY9kBtDVZ2RpVDYwWmxoSUk
 #facenet.load_model(executionFolder + "20170512-110547/20170512-110547.pb")
 
-#https://github.com/arunmandal53/facematch
+# Available pre-trained models  https://github.com/davidsandberg/facenet#pre-trained-models
+
+#https://drive.google.com/open?id=1EXPBSXwTaqrSC0OhUdXNmKSh9qJUQ55-
+#facenet.load_model(executionFolder + "20180402-114759/20180402-114759.pb")
+
+#https://drive.google.com/file/d/1R77HmFADxe87GmoLwzfgMu_HY0IhcyBz/view
 facenet.load_model(executionFolder + "20180408-102900/20180408-102900.pb")
+
 
 # Get input and output tensors
 images_placeholder = tf.get_default_graph().get_tensor_by_name("input:0")
