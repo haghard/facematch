@@ -3,23 +3,25 @@ package facematch
 import org.scalajs.dom
 
 import scala.scalajs.js.Dynamic.{ global => jscript }
-import scala.scalajs.js.annotation.JSExport
+import scala.scalajs.js.annotation.JSExportTopLevel
 import org.querki.jquery._
+import org.scalajs.dom.console
 import org.scalajs.dom.ext.Ajax
 import org.scalajs.dom.raw.HTMLImageElement
 
 import scala.scalajs.js.JSON
 import scala.util.{ Failure, Success }
 
-@JSExport
-object FaceAuthApp {
+object FaceAuth {
   val photoId = "user_img"
   val timeoutMillis = 15000
 
   import scala.concurrent.ExecutionContext.Implicits.global
 
-  @JSExport
+  @JSExportTopLevel("FaceAuth")
   def main(where: String, photo: String): Unit = {
+    console.log(s"---- $where $photo -----")
+
     $(dom.document).ready(() => {
       jscript.startCamera(s"#$where")
 

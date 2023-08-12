@@ -17,11 +17,12 @@ object FaceAuthScript {
         script(`type` := "text/javascript", src := "/assets/lib/camera.js"),
         script(`type` := "text/javascript", src := "/assets/lib/webcam.min.js"),
 
-        script(`type` := "text/javascript", src := "/assets/client-jsdeps.js"),
-        script(`type` := "text/javascript", src := "/assets/client-opt.js"),
+        script(`type` := "text/javascript", src := "/assets/facematch-jsdeps.js"),
+        script(`type` := "text/javascript", src := "/assets/facematch-fastopt.js"),
 
-        div(cls := "web-cam centered")(div(id := webCamera)),
+        div(cls := "web_cam centered")(div(id := webCamera)),
         div(id := "photo", style := "centered"),
-        script(s"""facematch.FaceAuthApp().main('$webCamera', '$photo')""")))
+
+        script(s"""FaceAuth('$webCamera','$photo')""")))
 
 }

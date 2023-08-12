@@ -11,9 +11,12 @@ scalariformPreferences := scalariformPreferences.value
     .setPreference(AlignParameters, true)
     .setPreference(AlignSingleLineCaseStatements, true)
 
-val scalaV = "2.12.8"
+val scalaV = "2.13.11"
+
+lazy val projectName = "facematch"
 
 lazy val server = (project in file("server")).settings(
+  name := projectName,
   promptTheme := com.scalapenos.sbt.prompt.PromptThemes.ScalapenosTheme,
   scalaVersion := scalaV,
   scalaJSProjects := Seq(client),
@@ -23,31 +26,33 @@ lazy val server = (project in file("server")).settings(
   resolvers ++= Seq(Resolver.typesafeRepo("releases"), Resolver.sonatypeRepo("snapshots"), Resolver.sonatypeRepo("releases")),
 
   libraryDependencies ++= Seq(
-    "com.vmunier"          %%   "scalajs-scripts"      % "1.1.0",
-    "com.lihaoyi"          %%   "scalatags"            % "0.6.7",
+    //"com.vmunier"          %%   "scalajs-scripts"      % "1.1.0",
+    "com.lihaoyi"          %%   "scalatags"            % "0.7.0",
     "org.webjars"          %    "bootstrap"            % "3.3.6",
     "io.netty"             %    "netty-all"            % "4.1.29.Final" withSources() withJavadoc(),
-    "org.scalanlp"         %%   "breeze"               % "0.13.2"),
+    "org.scalanlp"         %%   "breeze"               % "1.0" ),
   version := "0.1",
   WebKeys.packagePrefix in Assets := "public/",
   managedClasspath in Runtime += (packageBin in Assets).value,
   mainClass in assembly := Some("facematch.WebServer"),
-  assemblyJarName in assembly := s"facematch-${version.value}.jar"
+  assemblyJarName in assembly := s"$projectName-${version.value}.jar"
 ).enablePlugins(SbtWeb).
   dependsOn(sharedJvm)
 
 lazy val client = (project in file("client")).settings(
+  name := projectName,
   scalaVersion := scalaV,
   resolvers ++= Seq(Resolver.jcenterRepo),
   scalaJSUseMainModuleInitializer := false,
 
   jsDependencies +=
-     "org.webjars" % "jquery" % "2.2.1" / "jquery.js" minified "jquery.min.js",
+     //"org.webjars" % "jquery" % "2.2.1" / "jquery.js" minified "jquery.min.js",
+    "org.webjars" % "jquery" % "2.1.4" / "2.1.4/jquery.js",
 
   libraryDependencies ++= Seq(
-    "org.scala-js"        %%%  "scalajs-dom" % "0.9.3",
-    "org.querki"          %%%  "jquery-facade" % "1.2",
-    "com.lihaoyi"         %%%  "scalatags" % "0.6.7"
+    "org.scala-js"        %%%  "scalajs-dom" % "1.0.0",
+    "org.querki"          %%%  "jquery-facade" % "2.0",
+    "com.lihaoyi"         %%%  "scalatags" %  "0.9.1",
   )
 ).enablePlugins(ScalaJSPlugin, ScalaJSWeb).
   dependsOn(sharedJs)
@@ -56,7 +61,8 @@ lazy val shared = crossProject(JSPlatform, JVMPlatform)
   .crossType(CrossType.Pure)
   .settings(
     scalaVersion := scalaV,
-    libraryDependencies ++= Seq("com.lihaoyi" %%% "upickle" % "0.6.6")
+    name := projectName,
+    libraryDependencies ++= Seq("com.lihaoyi" %%% "upickle" % "1.0.0") /*"0.6.6"*/
   )
 
 
