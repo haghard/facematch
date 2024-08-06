@@ -11,7 +11,7 @@ scalariformPreferences := scalariformPreferences.value
     .setPreference(AlignParameters, true)
     .setPreference(AlignSingleLineCaseStatements, true)
 
-val scalaV = "2.13.11"
+val scalaV = "2.13.14"
 
 lazy val projectName = "facematch"
 
@@ -20,24 +20,23 @@ lazy val server = (project in file("server")).settings(
   promptTheme := com.scalapenos.sbt.prompt.PromptThemes.ScalapenosTheme,
   scalaVersion := scalaV,
   scalaJSProjects := Seq(client),
-  pipelineStages in Assets := Seq(scalaJSPipeline),
-  compile in Compile := ((compile in Compile) dependsOn (scalaJSPipeline, copyJsArtifacts)).value,
+  Assets / pipelineStages := Seq(scalaJSPipeline),
+  Compile / compile := ((Compile / compile) dependsOn (scalaJSPipeline, copyJsArtifacts)).value,
 
   resolvers ++= Seq(Resolver.typesafeRepo("releases"), Resolver.sonatypeRepo("snapshots"), Resolver.sonatypeRepo("releases")),
 
   libraryDependencies ++= Seq(
     //"com.vmunier"          %%   "scalajs-scripts"      % "1.1.0",
-    "com.lihaoyi"          %%   "scalatags"            % "0.7.0",
-    "org.webjars"          %    "bootstrap"            % "3.3.6",
+    "com.lihaoyi"          %%   "scalatags"            % "0.12.0",
+    "org.webjars"          %    "bootstrap"            % "5.3.3",
     "io.netty"             %    "netty-all"            % "4.1.29.Final" withSources() withJavadoc(),
     "org.scalanlp"         %%   "breeze"               % "1.0" ),
   version := "0.1",
-  WebKeys.packagePrefix in Assets := "public/",
-  managedClasspath in Runtime += (packageBin in Assets).value,
-  mainClass in assembly := Some("facematch.WebServer"),
-  assemblyJarName in assembly := s"$projectName-${version.value}.jar"
-).enablePlugins(SbtWeb).
-  dependsOn(sharedJvm)
+  Assets / WebKeys.packagePrefix := "public/",
+  Runtime / managedClasspath += (Assets / packageBin).value,
+  assembly / mainClass := Some("facematch.WebServer"),
+  assembly / assemblyJarName := s"$projectName-${version.value}.jar"
+).enablePlugins(SbtWeb).dependsOn(sharedJvm)
 
 lazy val client = (project in file("client")).settings(
   name := projectName,
@@ -54,8 +53,7 @@ lazy val client = (project in file("client")).settings(
     "org.querki"          %%%  "jquery-facade" % "2.0",
     "com.lihaoyi"         %%%  "scalatags" %  "0.9.1",
   )
-).enablePlugins(ScalaJSPlugin, ScalaJSWeb).
-  dependsOn(sharedJs)
+).enablePlugins(ScalaJSPlugin, ScalaJSWeb).dependsOn(sharedJs)
 
 lazy val shared = crossProject(JSPlatform, JVMPlatform)
   .crossType(CrossType.Pure)
@@ -65,15 +63,26 @@ lazy val shared = crossProject(JSPlatform, JVMPlatform)
     libraryDependencies ++= Seq("com.lihaoyi" %%% "upickle" % "1.0.0") /*"0.6.6"*/
   )
 
-
 lazy val sharedJvm = shared.jvm
 lazy val sharedJs = shared.js
 
 // loads the server project at sbt startup
 onLoad in Global := (onLoad in Global).value andThen {s: State => "project server" :: s}
 
+addCommandAlias("c", "compile")
+addCommandAlias("r", "reload")
+
 def copyJsArtifacts() = (baseDirectory) map { dir =>
   def execute() = {
+
+    Process(s"mkdir $dir/target/web").!
+    Process(s"mkdir $dir/target/web/web-modules").!
+    Process(s"mkdir $dir/target/web/web-modules/main").!
+    Process(s"mkdir $dir/target/web/web-modules/main/webjars").!
+    Process(s"mkdir $dir/target/web/web-modules/main/webjars/lib").!
+    Process(s"mkdir $dir/target/web/web-modules/main/webjars/lib/bootstrap").!
+    Process(s"mkdir $dir/target/web/web-modules/main/webjars/lib/bootstrap/css").!
+
     Process(s"cp ${dir}/src/main/resources/jquery.js     ${dir}/target/web/web-modules/main/webjars/lib").!
     Process(s"cp ${dir}/src/main/resources/webcam.min.js ${dir}/target/web/web-modules/main/webjars/lib").!
     Process(s"cp ${dir}/src/main/resources/camera.js     ${dir}/target/web/web-modules/main/webjars/lib").!
