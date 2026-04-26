@@ -1,5 +1,7 @@
 package facematch
 
+import ai.djl.engine.Engine
+
 import scala.collection.{ Map, Seq }
 
 trait OptsSupport {
@@ -16,7 +18,32 @@ trait OptsSupport {
 }
 
 object WebServer extends OptsSupport {
+
+  def checkEngine(): Unit = {
+    System.setProperty("ai.djl.debug", "true")
+    /*
+                PyTorch Engine is LOADED.
+                Version: 2.4.0
+                GPU Count: 0
+             */
+    // 1. Get a list of all engines DJL currently "sees" on your classpath
+    System.out.println("Loaded Engines: " + Engine.getAllEngines)
+    // 2. Check specifically for PyTorch
+    if (Engine.hasEngine("PyTorch")) {
+      val ptEngine = Engine.getEngine("PyTorch")
+      System.out.println("✅ PyTorch Engine is LOADED.")
+      System.out.println("   Version: " + ptEngine.getVersion)
+      System.out.println("   GPU Count: " + ptEngine.getGpuCount)
+    } else {
+      System.err.println("❌ PyTorch Engine NOT found!")
+      // Use this built-in DJL tool to see exactly what went wrong
+      Engine.debugEnvironment()
+    }
+  }
+
   def main(args: Array[String]) {
+    checkEngine()
+
     val opts: Map[String, String] = argsToOpts(args.toList)
     applySystemProperties(opts)
 

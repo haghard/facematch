@@ -16,7 +16,7 @@ object FaceAuth {
   val photoId = "user_img"
   val timeoutMillis = 15000
 
-  import scala.concurrent.ExecutionContext.Implicits.global
+  implicit val ec: scala.concurrent.ExecutionContextExecutor = scala.scalajs.concurrent.QueueExecutionContext.timeouts()
 
   @JSExportTopLevel("FaceAuth")
   def main(where: String, photo: String): Unit = {
@@ -30,11 +30,11 @@ object FaceAuth {
         jscript.takeSnapshot(photo, photoId)
 
         val image = dom.document.getElementById(photoId).asInstanceOf[HTMLImageElement]
-        val base64ImageCnt = image.src.substring(23)
+        val imageUrl = image.src //.substring(23)
 
         Ajax.post(
-          url = "/api/" + facematch.shared.HttpRoutes.compare,
-          data = base64ImageCnt,
+          url = "/api/" + facematch.shared.HttpRoutes.auth,
+          data = imageUrl,
           timeout = timeoutMillis)
           .map(r => JSON.parse(r.responseText))
           .onComplete {

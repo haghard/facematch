@@ -1,18 +1,16 @@
 package facematch
 
-import breeze.linalg.DenseVector
+import ai.djl.modality.cv.{ Image, ImageFactory }
+import ai.djl.repository.zoo.ZooModel
 
 import java.util.concurrent.ThreadFactory
 import java.util.concurrent.atomic.AtomicInteger
 import io.netty.handler.codec.http.{ FullHttpResponse, HttpResponseStatus, HttpVersion }
 
 import scala.concurrent.{ ExecutionContext, Future }
-import java.nio.file.{ Files, Paths }
-import java.util.Base64
+import java.nio.file.Paths
 import scala.util.control.NonFatal
-import sys.process._
 import facematch.shared.HttpRoutes
-
 import io.netty.handler.codec.http._
 
 package object netty {
@@ -30,14 +28,11 @@ package object netty {
     }
   }
 
-  final case class State(
-    vector: DenseVector[Double],
-    builder: StringBuilder = new StringBuilder,
-    ind: Int = 0,
-    entered: Boolean = false)
+  final case class FaceAuth(
+    facenetModel: ZooModel[Image, Array[Float]],
+    imageUrl: String)
 
-  final case class Compare2Faces(base64ImageCnt: String)
-  final case class FindOnPicture(base64ImageCnt: String)
+  //final case class FindOnPicture(base64ImageCnt: String)
 
   trait RestCall[T] {
     def run(arg: T): Future[Either[Throwable, FullHttpResponse]]
@@ -45,35 +40,10 @@ package object netty {
 
   object RestCall {
 
-    private def parse(originVector: String, size: Int): DenseVector[Double] = {
-      val state =
-        originVector.foldLeft(State(DenseVector.zeros[Double](size))) { (state, ch) =>
-          if (Character.isDigit(ch) || ch == '-' || ch == '.' || ch == 'e') {
-            if (!state.entered)
-              state.copy(entered = true, builder = state.builder.append(ch))
-            else
-              state.copy(builder = state.builder.append(ch))
-          } else {
-            if (state.entered) {
-              state.vector.update(state.ind, java.lang.Double.parseDouble(state.builder.toString))
-              state.builder.clear
-              state.copy(entered = false, ind = state.ind + 1)
-            } else state
-          }
-        }
-
-      val last = state.builder.toString
-      if (!last.isEmpty)
-        state.vector.update(state.ind, java.lang.Double.parseDouble(last))
-
-      //println("digits length:" + state.v.length)
-      //println(state.v(0) + " - " + state.v(state.v.length - 1))
-      state.vector
-    }
-
     def apply[T: RestCall]: RestCall[T] = implicitly[RestCall[T]]
+    /*
 
-    implicit def instance0(implicit ex: ExecutionContext): RestCall[Compare2Faces] =
+    implicit def instance01(implicit ex: ExecutionContext): RestCall[Compare2Faces] =
       (arg: Compare2Faces) =>
         Future {
           val haghard = Base64.getEncoder.encodeToString(Files.readAllBytes(Paths.get("./users/haghard.jpg")))
@@ -85,7 +55,7 @@ package object netty {
           println(haghard.length + " / " + arg.base64ImageCnt.length)
           //println(legorby.length + " /" + base64ImageCnt.length)
 
-          val result = s"python python/facematch.py --face1=${arg.base64ImageCnt} --face2=$haghard".!!
+          val result = s"python3 python/facematch.py --face1=${arg.base64ImageCnt} --face2=$haghard".!!
           val segments = result.split("\n")
 
           val vector = segments.tail.mkString("").replaceAll("[\\[\\]]", "")
@@ -123,8 +93,51 @@ package object netty {
             ex.printStackTrace
             Left(ex)
         }
+    */
 
-    implicit def instance1(implicit ex: ExecutionContext): RestCall[FindOnPicture] =
+    implicit def faceAuth(implicit ex: ExecutionContext): RestCall[FaceAuth] =
+      (arg: FaceAuth) =>
+        Future {
+          val haghard: Image = ImageFactory.getInstance().fromFile(Paths.get("./users/haghard_apr_26.jpeg"))
+          //val candidate: Image = ImageFactory.getInstance().fromFile(Paths.get("./users/Anthony_Hopkins_0001.jpg"))
+          val candidate: Image = ImageFactory.getInstance().fromUrl(arg.imageUrl)
+
+          val predictor = arg.facenetModel.newPredictor()
+          val haghardEmbeddings = predictor.predict(haghard)
+          val candidateEmbeddings = predictor.predict(candidate)
+
+          //https://github.com/deepjavalibrary/djl/blob/master/examples/src/main/java/ai/djl/examples/inference/face/FeatureExtraction.java
+          /*
+            95% – 100% (Definitive Match):
+            75% – 94% (Strong Match):
+            50% – 74% (Possible Match / Uncertain)
+          */
+          val simScore = calculateSimilar(haghardEmbeddings, candidateEmbeddings)
+          println(s"Similarity score=$simScore")
+          val r = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK, ByteBufs.toByteBuf(s"""{"${HttpRoutes.key}":$simScore}"""))
+          r.headers.set(HttpHeaderNames.CONTENT_TYPE, JsonContentType)
+          r.headers.setInt(HttpHeaderNames.CONTENT_LENGTH, r.content.readableBytes)
+          Right(r)
+        } recover {
+          case NonFatal(ex) =>
+            ex.printStackTrace
+            Left(ex)
+        }
+
+    def calculateSimilar(feature1: Array[Float], feature2: Array[Float]): Float = {
+      var ret = 0.0f
+      var mod1 = 0.0f
+      var mod2 = 0.0f
+      val length = feature1.length
+      for (i <- 0 until length) {
+        ret += feature1(i) * feature2(i)
+        mod1 += feature1(i) * feature1(i)
+        mod2 += feature2(i) * feature2(i)
+      }
+      ((ret / Math.sqrt(mod1) / Math.sqrt(mod2) + 1) / 2.0f).toFloat
+    }
+
+    /*implicit def instance1(implicit ex: ExecutionContext): RestCall[FindOnPicture] =
       (arg: FindOnPicture) =>
         Future {
           val uri = "./users/haghard_legorby1.jpg" //haghard_olga | haghard_grandparents | haghard_legorby2
@@ -133,12 +146,12 @@ package object netty {
           val segments = result.split("\n")
           val r = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK, ByteBufs.toByteBuf(s"""{ "${HttpRoutes.key}":${segments.last} }"""))
           r.headers.set(HttpHeaderNames.CONTENT_TYPE, JsonContentType)
-          r.headers.set(HttpHeaderNames.CONTENT_LENGTH, r.content.readableBytes)
+          r.headers.setInt(HttpHeaderNames.CONTENT_LENGTH, r.content.readableBytes)
           Right(r)
         } recover {
           case NonFatal(ex) =>
             ex.printStackTrace
             Left(ex)
-        }
+        }*/
   }
 }

@@ -11,7 +11,7 @@ scalariformPreferences := scalariformPreferences.value
     .setPreference(AlignParameters, true)
     .setPreference(AlignSingleLineCaseStatements, true)
 
-val scalaV = "2.13.14"
+val scalaV = "2.13.18"
 
 lazy val projectName = "facematch"
 
@@ -23,19 +23,30 @@ lazy val server = (project in file("server")).settings(
   Assets / pipelineStages := Seq(scalaJSPipeline),
   Compile / compile := ((Compile / compile) dependsOn (scalaJSPipeline, copyJsArtifacts)).value,
 
-  resolvers ++= Seq(Resolver.typesafeRepo("releases"), Resolver.sonatypeRepo("snapshots"), Resolver.sonatypeRepo("releases")),
+  resolvers ++= Seq(Resolver.typesafeRepo("releases"), Resolver.sonatypeRepo("snapshots")/*, Resolver.sonatypeRepo("releases")*/),
 
   libraryDependencies ++= Seq(
     //"com.vmunier"          %%   "scalajs-scripts"      % "1.1.0",
-    "com.lihaoyi"          %%   "scalatags"            % "0.12.0",
-    "org.webjars"          %    "bootstrap"            % "5.3.3",
+    "com.lihaoyi"          %%   "scalatags"            % "0.13.1",
+    "org.webjars"          %    "bootstrap"            % "5.3.8",
     "io.netty"             %    "netty-all"            % "4.1.29.Final" withSources() withJavadoc(),
-    "org.scalanlp"         %%   "breeze"               % "1.0" ),
+    "ai.djl"               %    "api"                  % "0.36.0",
+    "ai.djl.pytorch"       %    "pytorch-model-zoo"    % "0.36.0",
+  ),
   version := "0.1",
   Assets / WebKeys.packagePrefix := "public/",
   Runtime / managedClasspath += (Assets / packageBin).value,
   assembly / mainClass := Some("facematch.WebServer"),
-  assembly / assemblyJarName := s"$projectName-${version.value}.jar"
+  assembly / assemblyJarName := s"$projectName-${version.value}.jar",
+  assembly / assemblyMergeStrategy := {
+    case PathList("META-INF", "versions", "9", "module-info.class") => MergeStrategy.discard
+    case PathList("module-info.class")                              => MergeStrategy.discard
+    case x =>
+      val oldStrategy = (assembly / assemblyMergeStrategy).value
+      oldStrategy(x)
+  }
+
+
 ).enablePlugins(SbtWeb).dependsOn(sharedJvm)
 
 lazy val client = (project in file("client")).settings(
@@ -60,7 +71,7 @@ lazy val shared = crossProject(JSPlatform, JVMPlatform)
   .settings(
     scalaVersion := scalaV,
     name := projectName,
-    libraryDependencies ++= Seq("com.lihaoyi" %%% "upickle" % "1.0.0") /*"0.6.6"*/
+    libraryDependencies ++= Seq("com.lihaoyi" %%% "upickle" % "4.4.3")
   )
 
 lazy val sharedJvm = shared.jvm

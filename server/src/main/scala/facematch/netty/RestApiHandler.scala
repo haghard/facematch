@@ -1,19 +1,42 @@
 package facematch.netty
 
 import java.nio.charset.StandardCharsets
-
 import io.netty.channel._
 import io.netty.handler.codec.DecoderResult
 import io.netty.handler.codec.http._
 
 import scala.concurrent.ExecutionContext
-import scala.util.{ Failure, Success }
+import scala.util.{Failure, Success}
 import HttpVersion._
 import HttpResponseStatus._
+import ai.djl.modality.cv.Image
+import ai.djl.modality.cv.translator.ImageFeatureExtractorFactory
+import ai.djl.repository.zoo.{Criteria, ZooModel}
+import ai.djl.training.util.ProgressBar
 import io.netty.channel.ChannelHandler.Sharable
+
+import java.nio.file.Paths
 
 @Sharable
 class RestApiHandler(implicit ex: ExecutionContext) extends ChannelInboundHandlerAdapter {
+
+  val normalize: String = {
+    val mean: java.util.List[Float] = java.util.Arrays.asList(127.5f / 255.0f, 127.5f / 255.0f, 127.5f / 255.0f, 128.0f / 255.0f, 128.0f / 255.0f, 128.0f / 255.0f)
+    mean.stream.map(_.toString()).collect(java.util.stream.Collectors.joining(","))
+  }
+
+  //512
+  val facenetModel: ZooModel[Image, Array[Float]] =
+    Criteria.builder()
+      .setTypes(classOf[Image], classOf[Array[Float]])
+      .optModelPath(Paths.get("./facenet/face_feature.pt"))
+      .optModelName("face_feature")
+      .optArgument("normalize", normalize)
+      .optTranslatorFactory(new ImageFeatureExtractorFactory())
+      .optProgress(new ProgressBar())
+      .optEngine("PyTorch")
+      .build()
+      .loadModel()
 
   override def channelActive(ctx: ChannelHandlerContext): Unit =
     super.channelActive(ctx)
@@ -46,8 +69,13 @@ class RestApiHandler(implicit ex: ExecutionContext) extends ChannelInboundHandle
     msg match {
       case req: FullHttpRequest =>
         req match {
-          case HttpMethod.POST -> Root / "api" / HttpRoutes.compare if req.decoderResult == DecoderResult.SUCCESS =>
-            RestCall[Compare2Faces].run(Compare2Faces(req.content.toString(StandardCharsets.UTF_8))).onComplete {
+          case HttpMethod.POST -> Root / "api" / HttpRoutes.`auth` if req.decoderResult == DecoderResult.SUCCESS =>
+            RestCall[FaceAuth].run(
+              FaceAuth(
+                facenetModel,
+                req.content.toString(StandardCharsets.UTF_8),
+              )
+            ).onComplete {
               case Success(response) =>
                 response
                   .fold({ er => sendErrorResponse(ctx, er) }, { response =>
@@ -56,7 +84,7 @@ class RestApiHandler(implicit ex: ExecutionContext) extends ChannelInboundHandle
               case Failure(error) =>
                 sendErrorResponse(ctx, error)
             }
-          case HttpMethod.POST -> Root / "api" / HttpRoutes.recognize if req.decoderResult == DecoderResult.SUCCESS =>
+          /*case HttpMethod.POST -> Root / "api" / HttpRoutes.recognize if req.decoderResult == DecoderResult.SUCCESS =>
             RestCall[FindOnPicture].run(FindOnPicture(req.content.toString(StandardCharsets.UTF_8))).onComplete {
               case Success(response) =>
                 response
@@ -65,7 +93,7 @@ class RestApiHandler(implicit ex: ExecutionContext) extends ChannelInboundHandle
                   })
               case Failure(error) =>
                 sendErrorResponse(ctx, error)
-            }
+            }*/
           case other =>
             if (other.method == HttpMethod.GET && (other.uri == AssetsHandler.EmptyPath || other.uri.contains(AssetsHandler.ASSETS_SEGMENTS)))
               ctx.fireChannelRead(msg)

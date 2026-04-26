@@ -2,7 +2,7 @@ package facematch
 
 package object shared {
   object HttpRoutes {
-    val compare = "compare2"
+    val auth = "face-auth"
     val recognize = "recognize"
     val key = "euclidean"
   }

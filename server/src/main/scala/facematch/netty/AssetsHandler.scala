@@ -57,7 +57,7 @@ class AssetsHandler extends SimpleChannelInboundHandler[FullHttpRequest] {
         val appPage = facematch.js.FaceAuthScript().render
         val r = new DefaultFullHttpResponse(HTTP_1_1, OK, ByteBufs.toByteBuf(appPage))
         r.headers.set(HttpHeaderNames.CONTENT_TYPE, HTML)
-        r.headers.set(HttpHeaderNames.CONTENT_LENGTH, r.content.readableBytes)
+        r.headers.setInt(HttpHeaderNames.CONTENT_LENGTH, r.content.readableBytes)
         ctx.channel().writeAndFlush(r).addListener(ChannelFutureListener.CLOSE)
       } else if (!uri.endsWith(EmptyPath)) {
         val assertUri = uri.replace(ASSETS_SEGMENTS, PUBLIC_FOLDER)
@@ -86,7 +86,7 @@ class AssetsHandler extends SimpleChannelInboundHandler[FullHttpRequest] {
         val bts = ByteBufs.chunkedBlockingRead(url.openStream, resource)
         val resp = new DefaultFullHttpResponse(HTTP_1_1, OK, ByteBufs.bytesToByteBuf(bts))
         resp.headers.set(HttpHeaderNames.CONTENT_TYPE, mimeType)
-        resp.headers.set(HttpHeaderNames.CONTENT_LENGTH, resp.content.readableBytes)
+        resp.headers.setInt(HttpHeaderNames.CONTENT_LENGTH, resp.content.readableBytes)
         setDateAndCacheHeaders(resp, lastModified)
         ctx.channel().writeAndFlush(resp).addListener(ChannelFutureListener.CLOSE)
       } catch {
