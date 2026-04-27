@@ -22,7 +22,7 @@ object FunCall {
   val similarityThreashold = 0.935
 
   implicit def faceAuth(implicit ec: ExecutionContext): FunCall[FaceAuth] =
-    (arg: FaceAuth) =>
+    (request: FaceAuth) =>
       Future {
         val haghard: Image = ImageFactory.getInstance().fromFile(Paths.get("./users/haghard.jpeg"))
         haghard.getWrappedImage()
@@ -30,12 +30,12 @@ object FunCall {
         //legorby.getWrappedImage()
 
         //val candidate: Image = ImageFactory.getInstance().fromFile(Paths.get("./users/Anthony_Hopkins_0001.jpg"))
-        val candidate: Image = ImageFactory.getInstance().fromUrl(arg.imageUrl)
+        val candidate: Image = ImageFactory.getInstance().fromUrl(request.imageUrl)
         candidate.getWrappedImage()
 
         candidate.save(new FileOutputStream(new File(s"./login-attempts/${System.nanoTime()}.jpeg")), "jpeg")
 
-        val predictor = arg.facenetModel.newPredictor()
+        val predictor = request.facenetModel.newPredictor()
         val haghardEmbeddings = predictor.predict(haghard)
         val candidateEmbeddings = predictor.predict(candidate)
 
@@ -112,7 +112,7 @@ object FunCall {
     (sum.toDouble / Math.sqrt((aMagnitude * bMagnitude).toDouble)).toFloat
   }
 
-  /*def calculateSimilar1(feature1: Array[Float], feature2: Array[Float]): Float = {
+  /*def calculateSimilar(feature1: Array[Float], feature2: Array[Float]): Float = {
     var sum = 0.0f
     var mod1 = 0.0f
     var mod2 = 0.0f
