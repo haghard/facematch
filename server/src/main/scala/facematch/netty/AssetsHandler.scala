@@ -5,7 +5,6 @@ import java.net.{ URL, URLDecoder }
 import java.text.SimpleDateFormat
 import java.time.{ ZoneId, ZoneOffset }
 import java.util._
-
 import facematch.netty.ResourceFile.AssetFile
 import io.netty.buffer.Unpooled
 import io.netty.channel.{ ChannelFutureListener, _ }
@@ -16,6 +15,8 @@ import io.netty.handler.codec.http._
 import io.netty.util.CharsetUtil
 import AssetsHandler._
 import io.netty.channel.ChannelHandler.Sharable
+
+import scala.util.control.NonFatal
 
 object AssetsHandler {
   val HTTP_DATE_FORMAT = "EEE, dd MMM yyyy HH:mm:ss zzz"
@@ -77,21 +78,18 @@ class AssetsHandler extends SimpleChannelInboundHandler[FullHttpRequest] {
     }
   }
 
-  private def writeAsset(url: URL, resource: String, mimeType: String,
-    lastModified: Long, ctx: ChannelHandlerContext): Unit = {
-    val _ =
-      try {
-        val bts = ByteBufs.chunkedBlockingRead(url.openStream, resource)
-        val resp = new DefaultFullHttpResponse(HTTP_1_1, OK, ByteBufs.bytesToByteBuf(bts))
-        resp.headers.set(HttpHeaderNames.CONTENT_TYPE, mimeType)
-        resp.headers.setInt(HttpHeaderNames.CONTENT_LENGTH, resp.content.readableBytes)
-        setDateAndCacheHeaders(resp, lastModified)
-        ctx.channel().writeAndFlush(resp).addListener(ChannelFutureListener.CLOSE)
-      } catch {
-        case ex: Exception =>
-          ctx.channel().writeAndFlush(sendError(ctx, INTERNAL_SERVER_ERROR)).addListener(ChannelFutureListener.CLOSE)
-      }
-  }
+  private def writeAsset(url: URL, resource: String, mimeType: String, lastModified: Long, ctx: ChannelHandlerContext): Unit =
+    try {
+      val bts = ByteBufs.chunkedBlockingRead(url.openStream, resource)
+      val resp = new DefaultFullHttpResponse(HTTP_1_1, OK, ByteBufs.bytesToByteBuf(bts))
+      resp.headers.set(HttpHeaderNames.CONTENT_TYPE, mimeType)
+      resp.headers.setInt(HttpHeaderNames.CONTENT_LENGTH, resp.content.readableBytes)
+      setDateAndCacheHeaders(resp, lastModified)
+      ctx.channel().writeAndFlush(resp).addListener(ChannelFutureListener.CLOSE)
+    } catch {
+      case NonFatal(_) =>
+        ctx.channel().writeAndFlush(sendError(ctx, INTERNAL_SERVER_ERROR)).addListener(ChannelFutureListener.CLOSE)
+    }
 
   private def sanitizeUri(uri: String) =
     URLDecoder.decode(uri, CharsetUtil.UTF_8.name).replace('/', File.separatorChar)

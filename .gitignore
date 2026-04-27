@@ -24,3 +24,4 @@ project/plugins/project/
 ./facenet/face_feature.pt
 
 ./login-attempts/*
+./users/*
