@@ -34,7 +34,7 @@ object WebServer extends OptsSupport {
     }
   }
 
-  def main(args: Array[String]) {
+  def main(args: Array[String]) = {
     checkPyTorch()
 
     val opts: Map[String, String] = argsToOpts(args.toList)

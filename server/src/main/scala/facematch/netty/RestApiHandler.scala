@@ -2,7 +2,6 @@ package facematch.netty
 
 import java.nio.charset.StandardCharsets
 import io.netty.channel._
-import io.netty.handler.codec.DecoderResult
 import io.netty.handler.codec.http._
 
 import scala.concurrent.ExecutionContext
@@ -11,9 +10,8 @@ import HttpVersion._
 import HttpResponseStatus._
 import ai.djl.modality.cv.Image
 import ai.djl.modality.cv.translator.ImageFeatureExtractorFactory
-import ai.djl.repository.zoo.{Criteria, ZooModel}
+import ai.djl.repository.zoo._
 import ai.djl.training.util.ProgressBar
-import facematch.netty.UriPath.unapplySeq
 import io.netty.channel.ChannelHandler.Sharable
 
 import java.nio.file.Paths
@@ -21,7 +19,7 @@ import facematch.shared.HttpRoutes
 
 @Sharable
 class RestApiHandler(implicit ex: ExecutionContext) extends ChannelInboundHandlerAdapter {
-
+  
   //512
   //https://github.com/deepjavalibrary/djl/blob/master/examples/src/main/java/ai/djl/examples/inference/face/FeatureExtraction.java
   private val facenetModel: ZooModel[Image, Array[Float]] = {
@@ -96,12 +94,13 @@ class RestApiHandler(implicit ex: ExecutionContext) extends ChannelInboundHandle
                 sendErrorResponse(ctx, error)
             }*/
           case other =>
-            //println("other" + other)
             if (other.method == HttpMethod.GET && (other.uri == AssetsHandler.EmptyPath || other.uri.contains(AssetsHandler.ASSETS_SEGMENTS)))
               ctx.fireChannelRead(msg)
             else
               sendSimpleErrorResponse(ctx, BAD_REQUEST)
         }
+      case _ =>
+        ctx.fireChannelRead(msg)
     }
   }
 }

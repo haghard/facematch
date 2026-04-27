@@ -15,10 +15,10 @@ abstract class UriPath {
   def startsWith(other: UriPath): Boolean
 }
 
-case object Root extends UriPath {
+case object Root extends UriPath { self =>
   def toList: List[String] = Nil
 
-  def parent = this
+  def parent: UriPath = self
 
   def lastOption: Option[String] = None
 
@@ -87,7 +87,6 @@ object -> {
    * case Method.Get -> Root / "test.json" => ...
    */
   def unapply(req: FullHttpRequest): Option[(HttpMethod, UriPath)] = {
-    println(req.method + " " + req.uri)
     Some((req.method, UriPath(req.uri)))
   }
 

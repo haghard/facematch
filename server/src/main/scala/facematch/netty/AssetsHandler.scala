@@ -81,7 +81,6 @@ class AssetsHandler extends SimpleChannelInboundHandler[FullHttpRequest] {
     lastModified: Long, ctx: ChannelHandlerContext): Unit = {
     val _ =
       try {
-        //val bts = org.apache.commons.io.IOUtils.toByteArray(url.openStream)
         val bts = ByteBufs.chunkedBlockingRead(url.openStream, resource)
         val resp = new DefaultFullHttpResponse(HTTP_1_1, OK, ByteBufs.bytesToByteBuf(bts))
         resp.headers.set(HttpHeaderNames.CONTENT_TYPE, mimeType)
@@ -90,7 +89,6 @@ class AssetsHandler extends SimpleChannelInboundHandler[FullHttpRequest] {
         ctx.channel().writeAndFlush(resp).addListener(ChannelFutureListener.CLOSE)
       } catch {
         case ex: Exception =>
-          ex.printStackTrace()
           ctx.channel().writeAndFlush(sendError(ctx, INTERNAL_SERVER_ERROR)).addListener(ChannelFutureListener.CLOSE)
       }
   }

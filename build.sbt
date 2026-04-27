@@ -11,8 +11,9 @@ scalariformPreferences := scalariformPreferences.value
     .setPreference(AlignParameters, true)
     .setPreference(AlignSingleLineCaseStatements, true)
 
-val scalaV = "2.13.18"
-val requiredJvmVersion = "22"
+lazy val scalaV = "2.13.18"
+lazy val requiredJvmVersion = "22"
+lazy val projectName = "facematch"
 
 initialize := {
   val _ = initialize.value
@@ -21,29 +22,50 @@ initialize := {
     sys.error(s"Java $requiredJvmVersion is required for this project. Found $current instead.")
 }
 
+//https://github.com/com-lihaoyi/Ammonite/releases
+val AmmoniteVersion = "3.0.9"
 
-lazy val projectName = "facematch"
+//show scalacOptions
+val scalac2_13Options = Seq(
+  //Migration mode. Preparing your code to be fully moved to Scala 3.
+  //It enables Scala 3 specific syntax (like * for wildcards instead of _) and changes certain compiler behaviors to match Scala 3’s stricter rules.
+  "-Xsource:3",
+  "-language:experimental.macros",
+  s"-release:$requiredJvmVersion",
+  "-deprecation",
+  "-feature",
+  "-unchecked",
+  "-Yrangepos",
+  "-Xlog-reflective-calls",
+  "-Xlint",
+  "-Vtype-diffs",
+  "-Ylog-classpath", //log classpath
+  //"-Wunused:imports",
+  //"-Xfatal-warnings",
+  "-Wconf:cat=other-match-analysis:error" // Transform exhaustivity warnings into errors.
+)
+
 
 lazy val server = (project in file("server")).settings(
   name := projectName,
   promptTheme := com.scalapenos.sbt.prompt.PromptThemes.ScalapenosTheme,
   scalaVersion := scalaV,
+  scalacOptions := scalac2_13Options,
   scalaJSProjects := Seq(client),
   Assets / pipelineStages := Seq(scalaJSPipeline),
   Compile / compile := ((Compile / compile) dependsOn (scalaJSPipeline, copyJsArtifacts)).value,
-
-  resolvers ++= Seq(Resolver.typesafeRepo("releases")), //, Resolver.sonatypeRepo("snapshots")
+  resolvers ++= Seq(Resolver.typesafeRepo("releases")),
 
   libraryDependencies ++= Seq(
     "com.lihaoyi"          %%   "scalatags"            % "0.13.1",
     "org.webjars"          %    "bootstrap"            % "5.3.8",
-    "io.netty"             %    "netty-all"            % "4.2.12.Final", // withSources() withJavadoc(), 4.1.29.Final
+    "io.netty"             %    "netty-all"            % "4.2.12.Final", // withSources() withJavadoc(),
     "ai.djl"               %    "api"                  % "0.36.0",
     "ai.djl.pytorch"       %    "pytorch-model-zoo"    % "0.36.0",
-    "com.github.wi101"     %%   "embroidery"           % "0.1.1",
+    "com.lihaoyi"  % "ammonite" % AmmoniteVersion % "test" cross CrossVersion.full,
   ),
 
-  version := "0.2",
+  version := "0.2.0",
   Assets / WebKeys.packagePrefix := "public/",
   Runtime / managedClasspath += (Assets / packageBin).value,
   assembly / mainClass := Some("facematch.WebServer"),
@@ -56,18 +78,29 @@ lazy val server = (project in file("server")).settings(
     case x =>
       val oldStrategy = (assembly / assemblyMergeStrategy).value
       oldStrategy(x)
-  }
+  },
+
+  //Set "false" for ammonite (test:run)
+  run / fork := true,
+  run / connectInput := true,
+
+  // ammonite repl
+  Test / sourceGenerators += Def.task {
+    val file = (Test / sourceManaged).value / "amm.scala"
+    IO.write(file, """object amm extends App { ammonite.Main().run() }""")
+    Seq(file)
+  }.taskValue
 
 ).enablePlugins(SbtWeb).dependsOn(sharedJvm)
 
 lazy val client = (project in file("client")).settings(
   name := projectName,
   scalaVersion := scalaV,
+  scalacOptions := scalac2_13Options,
   resolvers ++= Seq(Resolver.jcenterRepo),
   scalaJSUseMainModuleInitializer := false,
 
   jsDependencies +=
-     //"org.webjars" % "jquery" % "2.2.1" / "jquery.js" minified "jquery.min.js",
     "org.webjars" % "jquery" % "2.1.4" / "2.1.4/jquery.js",
 
   libraryDependencies ++= Seq(
@@ -80,14 +113,17 @@ lazy val shared = crossProject(JSPlatform, JVMPlatform)
   .crossType(CrossType.Pure)
   .settings(
     scalaVersion := scalaV,
+    scalacOptions := scalac2_13Options,
     name := projectName,
     libraryDependencies ++= Seq("com.lihaoyi" %%% "upickle" % "4.4.3")
   )
 
+scalaVersion := scalaV
 javacOptions ++= Seq("-source", requiredJvmVersion, "-target", requiredJvmVersion)
 
 lazy val sharedJvm = shared.jvm
 lazy val sharedJs = shared.js
+
 
 // loads the server project at sbt startup
 onLoad in Global := (onLoad in Global).value andThen {s: State => "project server" :: s}

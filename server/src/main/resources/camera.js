@@ -3,7 +3,7 @@ function startCamera(where) {
     width: 320,
     height: 240,
     image_format: 'jpeg',
-    jpeg_quality: 90
+    jpeg_quality: 100
   });
   Webcam.attach(where);
 }
