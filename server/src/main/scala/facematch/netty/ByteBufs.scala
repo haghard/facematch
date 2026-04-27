@@ -14,19 +14,19 @@ object ByteBufs {
   def bytesToByteBuf(bs: Array[Byte]): ByteBuf =
     Unpooled.wrappedBuffer(bs)
 
-  def chunkedBlockingRead(is: InputStream, resource: String): Array[Byte] = {
-    val out = new ByteArrayOutputStream
+  def chunkedBlockingRead(is: InputStream): Array[Byte] = {
+    var bytesAvailableToRead = 0
+    val out = new ByteArrayOutputStream()
     try {
-      var bytesAvailableToRead = 0
-      val chunk = new Array[Byte](1024 * 10) //10K
+      val chunk = new Array[Byte](1024 * 10)
       while ({
         bytesAvailableToRead = is.read(chunk) //blocking call
         bytesAvailableToRead != -1
       }) {
         out.write(chunk, 0, bytesAvailableToRead)
       }
-      out.flush
-      out.toByteArray
+      out.flush()
+      out.toByteArray()
     } finally out.close()
   }
 }

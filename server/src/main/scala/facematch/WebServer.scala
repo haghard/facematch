@@ -21,12 +21,10 @@ object WebServer extends OptsSupport {
 
   def checkPyTorch(): Unit = {
     System.setProperty("ai.djl.debug", "true")
-    System.out.println("Loaded Engines: " + Engine.getAllEngines)
+    println("Loaded Engines: " + Engine.getAllEngines)
     if (Engine.hasEngine("PyTorch")) {
       val ptEngine = Engine.getEngine("PyTorch")
-      System.out.println("✅ PyTorch Engine is LOADED.")
-      System.out.println("   Version: " + ptEngine.getVersion)
-      System.out.println("   GPU Count: " + ptEngine.getGpuCount)
+      println(s"✅ PyTorch Engine is LOADED. Version:" + ptEngine.getVersion())
     } else {
       System.err.println("❌ PyTorch Engine NOT found!")
       // Use this built-in DJL tool to see exactly what went wrong

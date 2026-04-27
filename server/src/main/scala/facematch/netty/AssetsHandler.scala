@@ -64,10 +64,10 @@ class AssetsHandler extends SimpleChannelInboundHandler[FullHttpRequest] {
         Option(defaultClassLoader.getResource(assertUri)) flatMap ResourceFile.apply match {
           case Some(AssetFile(url, _, lastModified)) =>
             val mimeType = parseMimeType(assertUri.substring(assertUri.lastIndexOf('.') + 1, assertUri.length))
-            //println(s"load: $uri")
-            writeAsset(url, assertUri, mimeType, lastModified, ctx)
+            println(s"serve asset: $assertUri")
+            writeAsset(url, mimeType, lastModified, ctx)
           case _ =>
-            println(s"Unknown content: $uri")
+            println(s"Unknown asset: $uri")
             sendError(ctx, NOT_FOUND)
         }
       } else {
@@ -78,10 +78,10 @@ class AssetsHandler extends SimpleChannelInboundHandler[FullHttpRequest] {
     }
   }
 
-  private def writeAsset(url: URL, resource: String, mimeType: String, lastModified: Long, ctx: ChannelHandlerContext): Unit =
+  private def writeAsset(url: URL, mimeType: String, lastModified: Long, ctx: ChannelHandlerContext): Unit =
     try {
-      val bts = ByteBufs.chunkedBlockingRead(url.openStream, resource)
-      val resp = new DefaultFullHttpResponse(HTTP_1_1, OK, ByteBufs.bytesToByteBuf(bts))
+      val resourceBts: Array[Byte] = ByteBufs.chunkedBlockingRead(url.openStream)
+      val resp = new DefaultFullHttpResponse(HTTP_1_1, OK, ByteBufs.bytesToByteBuf(resourceBts))
       resp.headers.set(HttpHeaderNames.CONTENT_TYPE, mimeType)
       resp.headers.setInt(HttpHeaderNames.CONTENT_LENGTH, resp.content.readableBytes)
       setDateAndCacheHeaders(resp, lastModified)
@@ -107,7 +107,7 @@ class AssetsHandler extends SimpleChannelInboundHandler[FullHttpRequest] {
     dateFormatter.setTimeZone(TimeZone.getTimeZone(ZoneId.ofOffset("UTC", ZoneOffset.UTC)))
 
     // Date header
-    val time = new GregorianCalendar
+    val time = new GregorianCalendar()
     response.headers.set(HttpHeaderNames.DATE, dateFormatter.format(time.getTime))
     // Cache headers
     time.add(Calendar.SECOND, HTTP_CACHE_SECONDS)

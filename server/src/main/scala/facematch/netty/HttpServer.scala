@@ -39,6 +39,7 @@ object HttpServer {
             pipeline.addLast(new HttpObjectAggregator(Int.MaxValue))
             pipeline.addLast("rest-api", restApi)
             pipeline.addLast(blockingGroup, "content", assets)
+            ()
           }
         })
         //https://www.ybrikman.com/writing/2014/02/18/maxing-out-at-50-concurrent-connections/
@@ -46,9 +47,9 @@ object HttpServer {
         .option[java.lang.Integer](ChannelOption.SO_BACKLOG, backlog) //allows 1024 concurrent connections
         .childOption[java.lang.Boolean](ChannelOption.SO_KEEPALIVE, true)
 
-      val serverFuture = bootstrap.bind(interface, port).sync
-      println(s"(facematch) Listening on ${interface}:${port}")
-      serverFuture.channel.closeFuture.sync
+      val serverFuture = bootstrap.bind(interface, port).sync()
+      println(s"(facematch) Listening on $interface:$port")
+      serverFuture.channel.closeFuture.sync()
     } finally {
       bossGroup.shutdownGracefully()
       workerGroup.shutdownGracefully()
