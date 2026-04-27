@@ -14,7 +14,7 @@ import scala.util.{ Failure, Success }
 
 object FaceAuth {
   val photoId = "user_img"
-  val timeoutMillis = 15000
+  val timeoutMillis = 5000
 
   implicit val ec: scala.concurrent.ExecutionContextExecutor = scala.scalajs.concurrent.QueueExecutionContext.timeouts()
 
@@ -62,7 +62,7 @@ object FaceAuth {
 
         $.ajax(reqSettings)
         */
-      }, 3000L)
+      }, 4000L)
     })
   }
 }

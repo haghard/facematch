@@ -19,7 +19,6 @@ import io.netty.channel.ChannelHandler.Sharable
 
 object AssetsHandler {
   val HTTP_DATE_FORMAT = "EEE, dd MMM yyyy HH:mm:ss zzz"
-  val HTTP_DATE_UTC_TIMEZONE = "UTC"
   val HTTP_CACHE_SECONDS = 120
   val defaultClassLoader = classOf[AssetsHandler].getClassLoader
 
@@ -62,10 +61,10 @@ class AssetsHandler extends SimpleChannelInboundHandler[FullHttpRequest] {
       } else if (!uri.endsWith(EmptyPath)) {
         val assertUri = uri.replace(ASSETS_SEGMENTS, PUBLIC_FOLDER)
         Option(defaultClassLoader.getResource(assertUri)) flatMap ResourceFile.apply match {
-          case Some(AssetFile(url, length, lastModified)) =>
+          case Some(AssetFile(url, _, lastModified)) =>
             val mimeType = parseMimeType(assertUri.substring(assertUri.lastIndexOf('.') + 1, assertUri.length))
             //println(s"load: $uri")
-            writeAsset(url, assertUri, length, mimeType, lastModified, ctx)
+            writeAsset(url, assertUri, mimeType, lastModified, ctx)
           case _ =>
             println(s"Unknown content: $uri")
             sendError(ctx, NOT_FOUND)
@@ -78,7 +77,7 @@ class AssetsHandler extends SimpleChannelInboundHandler[FullHttpRequest] {
     }
   }
 
-  private def writeAsset(url: URL, resource: String, fileLength: Long, mimeType: String,
+  private def writeAsset(url: URL, resource: String, mimeType: String,
     lastModified: Long, ctx: ChannelHandlerContext): Unit = {
     val _ =
       try {

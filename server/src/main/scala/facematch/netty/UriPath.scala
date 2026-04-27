@@ -87,6 +87,7 @@ object -> {
    * case Method.Get -> Root / "test.json" => ...
    */
   def unapply(req: FullHttpRequest): Option[(HttpMethod, UriPath)] = {
+    println(req.method + " " + req.uri)
     Some((req.method, UriPath(req.uri)))
   }
 

@@ -8,3 +8,5 @@ addSbtPlugin("org.scala-js" % "sbt-scalajs" % "1.21.0")
 addSbtPlugin("com.vmunier" % "sbt-web-scalajs" % "1.1.0")
 addSbtPlugin("com.scalapenos" % "sbt-prompt" % "1.0.2")
 addSbtPlugin("org.scalariform" % "sbt-scalariform" % "1.8.2")
+
+addSbtPlugin("com.timushev.sbt"  % "sbt-rewarn" % "0.1.3")

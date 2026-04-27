@@ -1,44 +1,22 @@
 # How to run
 
-sbt assembly && java -jar server/target/scala-2.13/facematch-0.1.jar
+Download https://resources.djl.ai/test-models/pytorch/face_feature.zip and unzip it to ./facenet
+
+
+```
+
+export JAVA_HOME=/Library/Java/JavaVirtualMachines/jdk-22.jdk/Contents/Home
+
+
+sbt assembly && java --add-modules=jdk.incubator.vector -jar server/target/scala-2.13/facematch-0.2.jar
+
+```
 
 http://localhost:8080/
 
-# req
-
-pip install imutils
-python3 -m pip install imutils
 
 
-pip install opencv-python
-
-pip install --upgrade imutils
-pip install --upgrade opencv-python
-
-python3 -m pip install imutils
-
-python3 -m pip install opencv-python
-
-export PYTHONPATH=$PYTHONPATH:/Volumes/dev/github/facematch/python/:/Volumes/dev/github/facematch/python/align
-
-
-
-export PYTHONPATH=$PYTHONPATH:/Users/vadimbondarev/projects/haghard/facematch/python/:/Users/vadimbondarev/projects/haghard/facematch/python/align
-
-
-
-
-export PATH=$PATH:/Users/haghard/Library/Python/3.9/bin
-export PYTHONPATH=$PYTHONPATH:/Users/haghard/projects/github/facematch/python/:/Users/haghard/projects/github/facematch/python/align
-
-
-
-python3 -m pip install --ignore-installed --upgrade tensorflow
-python3 -m pip install --ignore-installed --upgrade scipy
-
-
-
-# issues
+# Issues
 https://github.com/davidsandberg/facenet/issues/106
 https://github.com/davidsandberg/facenet/wiki/Validate-on-lfw
 

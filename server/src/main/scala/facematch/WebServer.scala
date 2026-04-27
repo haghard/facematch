@@ -19,16 +19,9 @@ trait OptsSupport {
 
 object WebServer extends OptsSupport {
 
-  def checkEngine(): Unit = {
+  def checkPyTorch(): Unit = {
     System.setProperty("ai.djl.debug", "true")
-    /*
-                PyTorch Engine is LOADED.
-                Version: 2.4.0
-                GPU Count: 0
-             */
-    // 1. Get a list of all engines DJL currently "sees" on your classpath
     System.out.println("Loaded Engines: " + Engine.getAllEngines)
-    // 2. Check specifically for PyTorch
     if (Engine.hasEngine("PyTorch")) {
       val ptEngine = Engine.getEngine("PyTorch")
       System.out.println("✅ PyTorch Engine is LOADED.")
@@ -42,7 +35,7 @@ object WebServer extends OptsSupport {
   }
 
   def main(args: Array[String]) {
-    checkEngine()
+    checkPyTorch()
 
     val opts: Map[String, String] = argsToOpts(args.toList)
     applySystemProperties(opts)

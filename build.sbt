@@ -12,6 +12,15 @@ scalariformPreferences := scalariformPreferences.value
     .setPreference(AlignSingleLineCaseStatements, true)
 
 val scalaV = "2.13.18"
+val requiredJvmVersion = "22"
+
+initialize := {
+  val _ = initialize.value
+  val current  = sys.props("java.specification.version")
+  if (current != requiredJvmVersion)
+    sys.error(s"Java $requiredJvmVersion is required for this project. Found $current instead.")
+}
+
 
 lazy val projectName = "facematch"
 
@@ -23,29 +32,31 @@ lazy val server = (project in file("server")).settings(
   Assets / pipelineStages := Seq(scalaJSPipeline),
   Compile / compile := ((Compile / compile) dependsOn (scalaJSPipeline, copyJsArtifacts)).value,
 
-  resolvers ++= Seq(Resolver.typesafeRepo("releases"), Resolver.sonatypeRepo("snapshots")/*, Resolver.sonatypeRepo("releases")*/),
+  resolvers ++= Seq(Resolver.typesafeRepo("releases")), //, Resolver.sonatypeRepo("snapshots")
 
   libraryDependencies ++= Seq(
-    //"com.vmunier"          %%   "scalajs-scripts"      % "1.1.0",
     "com.lihaoyi"          %%   "scalatags"            % "0.13.1",
     "org.webjars"          %    "bootstrap"            % "5.3.8",
-    "io.netty"             %    "netty-all"            % "4.1.29.Final" withSources() withJavadoc(),
+    "io.netty"             %    "netty-all"            % "4.2.12.Final", // withSources() withJavadoc(), 4.1.29.Final
     "ai.djl"               %    "api"                  % "0.36.0",
     "ai.djl.pytorch"       %    "pytorch-model-zoo"    % "0.36.0",
+    "com.github.wi101"     %%   "embroidery"           % "0.1.1",
   ),
-  version := "0.1",
+
+  version := "0.2",
   Assets / WebKeys.packagePrefix := "public/",
   Runtime / managedClasspath += (Assets / packageBin).value,
   assembly / mainClass := Some("facematch.WebServer"),
   assembly / assemblyJarName := s"$projectName-${version.value}.jar",
   assembly / assemblyMergeStrategy := {
     case PathList("META-INF", "versions", "9", "module-info.class") => MergeStrategy.discard
+    case PathList("META-INF", "versions", "11", "module-info.class") => MergeStrategy.discard
+    case PathList("META-INF", "io.netty.versions.properties") => MergeStrategy.discard
     case PathList("module-info.class")                              => MergeStrategy.discard
     case x =>
       val oldStrategy = (assembly / assemblyMergeStrategy).value
       oldStrategy(x)
   }
-
 
 ).enablePlugins(SbtWeb).dependsOn(sharedJvm)
 
@@ -62,7 +73,6 @@ lazy val client = (project in file("client")).settings(
   libraryDependencies ++= Seq(
     "org.scala-js"        %%%  "scalajs-dom" % "1.0.0",
     "org.querki"          %%%  "jquery-facade" % "2.0",
-    "com.lihaoyi"         %%%  "scalatags" %  "0.9.1",
   )
 ).enablePlugins(ScalaJSPlugin, ScalaJSWeb).dependsOn(sharedJs)
 
@@ -73,6 +83,8 @@ lazy val shared = crossProject(JSPlatform, JVMPlatform)
     name := projectName,
     libraryDependencies ++= Seq("com.lihaoyi" %%% "upickle" % "4.4.3")
   )
+
+javacOptions ++= Seq("-source", requiredJvmVersion, "-target", requiredJvmVersion)
 
 lazy val sharedJvm = shared.jvm
 lazy val sharedJs = shared.js

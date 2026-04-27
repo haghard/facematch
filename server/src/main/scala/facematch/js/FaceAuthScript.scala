@@ -20,9 +20,7 @@ object FaceAuthScript {
         script(`type` := "text/javascript", src := "/assets/facematch-jsdeps.js"),
         script(`type` := "text/javascript", src := "/assets/facematch-fastopt.js"),
 
-        div(cls := "web_cam centered")(div(id := webCamera)),
-        div(id := "photo", style := "centered"),
+        div(id := "c", cls := "web-cam")(div(id := webCamera)),
 
-        script(s"""FaceAuth('$webCamera','$photo')""")))
-
+        div(id := "photo", style := "display: none;"), script(s"""FaceAuth('$webCamera','$photo')""")))
 }

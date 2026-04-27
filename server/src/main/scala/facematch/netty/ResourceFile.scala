@@ -5,7 +5,7 @@ import java.net.{ URI, URL }
 
 object ResourceFile {
 
-  case class AssetFile(url: URL, length: Long, lastModified: Long)
+  final case class AssetFile(url: URL, length: Long, lastModified: Long)
 
   def apply(url: URL): Option[AssetFile] = url.getProtocol match {
     case "file" ⇒
