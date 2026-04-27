@@ -22,3 +22,5 @@ project/plugins/project/
 *.swp
 
 ./facenet/face_feature.pt
+
+./login-attempts/*
