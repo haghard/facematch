@@ -68,7 +68,7 @@ class RestApiHandler(implicit ex: ExecutionContext) extends ChannelInboundHandle
     msg match {
       case req: FullHttpRequest =>
         req match {
-          case HttpMethod.POST -> Root / "api" / HttpRoutes.auth if req.decoderResult().isSuccess() =>
+          case HttpMethod.POST -> Root / HttpRoutes.api / HttpRoutes.auth if req.decoderResult().isSuccess() =>
             FunCall[FaceAuth].run(
               FaceAuth(
                 facenetModel,

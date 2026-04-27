@@ -33,7 +33,7 @@ object FaceAuth {
         val imageUrl = image.src //.substring(23)
 
         Ajax.post(
-          url = "/api/" + facematch.shared.HttpRoutes.auth,
+          url = "/" + facematch.shared.HttpRoutes.api + "/" + facematch.shared.HttpRoutes.auth,
           data = imageUrl,
           timeout = timeoutMillis)
           .map(r => JSON.parse(r.responseText))
