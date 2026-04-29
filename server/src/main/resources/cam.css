@@ -4,13 +4,12 @@
     border-radius: 125px;
     -webkit-mask-image: -webkit-radial-gradient(circle, white 100%, black 100%);
     margin: 0 auto;
-    #margin-bottom: 30px;
     justify-content: center; /* Horizontal centering */
     align-items: center;     /* Vertical centering */
 }
 
 video {
-    width: 450px;
+    width: 350px;
 }
 
 .face-info {
@@ -19,3 +18,9 @@ video {
     font-size: 80%;
 }
 
+
+body {
+    padding-top: 50px;
+    font-size: 16px;
+    background: #f5f7f9;
+}

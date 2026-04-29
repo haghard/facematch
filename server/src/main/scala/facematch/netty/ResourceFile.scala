@@ -15,9 +15,8 @@ object ResourceFile {
     case "jar" =>
       val path = new URI(url.getPath).getPath // remove "file:" prefix and normalize whitespace
       val bangIndex = path.indexOf('!')
-      val filePath = path.substring(0, bangIndex)
-      val resourcePath = path.substring(bangIndex + 2)
-      Using.resource(new java.util.zip.ZipFile(filePath)) { jar =>
+      Using.resource(new java.util.zip.ZipFile(path.substring(0, bangIndex))) { jar =>
+        val resourcePath = path.substring(bangIndex + 2)
         val entry = jar.getEntry(resourcePath)
         if (entry.isDirectory) None
         else Option(jar.getInputStream(entry)) map { is =>
