@@ -39,7 +39,7 @@ object FunCall {
         val haghardEmbeddings = predictor.predict(haghard)
         val candidateEmbeddings = predictor.predict(candidate)
 
-        val score = calculateSimilar(candidateEmbeddings, haghardEmbeddings)
+        val score = evalSimilarity(candidateEmbeddings, haghardEmbeddings)
         if (score >= similarityThreashold) {
           println(s"✅ Similarity score=$score. Threashold=$similarityThreashold")
         } else {
@@ -54,7 +54,7 @@ object FunCall {
           Left(ex)
       }
 
-  private def calculateSimilar(candidate: Array[Float], origin: Array[Float]): Float = {
+  private def evalSimilarity(candidate: Array[Float], origin: Array[Float]): Float = {
     val SPECIES = FloatVector.SPECIES_PREFERRED
     val length = candidate.length
     val upperLimit = SPECIES.loopBound(length)
@@ -112,7 +112,7 @@ object FunCall {
     (sum.toDouble / Math.sqrt((aMagnitude * bMagnitude).toDouble)).toFloat
   }
 
-  /*def calculateSimilar(feature1: Array[Float], feature2: Array[Float]): Float = {
+  /*def evalSimilarity(feature1: Array[Float], feature2: Array[Float]): Float = {
     var sum = 0.0f
     var mod1 = 0.0f
     var mod2 = 0.0f
