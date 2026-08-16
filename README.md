@@ -5,10 +5,10 @@ Download https://resources.djl.ai/test-models/pytorch/face_feature.zip and unzip
 
 ```
 
-export JAVA_HOME=/Library/Java/JavaVirtualMachines/jdk-22.jdk/Contents/Home
+export JAVA_HOME=/Library/Java/JavaVirtualMachines/jdk-25.jdk/Contents/Home
 
 
-sbt assembly && java --add-modules=jdk.incubator.vector -jar server/target/scala-2.13/facematch-0.2.jar
+sbt assembly && java --add-modules=jdk.incubator.vector -jar server/target/scala-2.13/facematch-0.2.0.jar
 
 ```
 

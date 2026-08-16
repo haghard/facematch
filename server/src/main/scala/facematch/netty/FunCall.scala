@@ -19,7 +19,7 @@ object FunCall {
 
   def apply[T: FunCall]: FunCall[T] = implicitly[FunCall[T]]
 
-  val similarityThreashold = 0.935
+  val similarityThreashold = 0.94
 
   implicit def faceAuth(implicit ec: ExecutionContext): FunCall[FaceAuth] =
     (request: FaceAuth) =>

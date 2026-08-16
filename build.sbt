@@ -12,7 +12,7 @@ scalariformPreferences := scalariformPreferences.value
     .setPreference(AlignSingleLineCaseStatements, true)
 
 lazy val scalaV = "2.13.18"
-lazy val requiredJvmVersion = "22"
+lazy val requiredJvmVersion = "25"
 lazy val projectName = "facematch"
 
 initialize := {
