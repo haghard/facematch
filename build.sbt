@@ -60,8 +60,8 @@ lazy val server = (project in file("server")).settings(
     "com.lihaoyi"          %%   "scalatags"            % "0.13.1",
     "org.webjars"          %    "bootstrap"            % "5.3.8",
     "io.netty"             %    "netty-all"            % "4.2.12.Final", // withSources() withJavadoc(),
-    "ai.djl"               %    "api"                  % "0.36.0",
-    "ai.djl.pytorch"       %    "pytorch-model-zoo"    % "0.36.0",
+    "ai.djl"               %    "api"                  % "0.39.0",
+    "ai.djl.pytorch"       %    "pytorch-model-zoo"    % "0.39.0",
     "com.lihaoyi"  % "ammonite" % AmmoniteVersion % "test" cross CrossVersion.full,
   ),
 
