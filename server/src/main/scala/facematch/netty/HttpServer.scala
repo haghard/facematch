@@ -16,10 +16,10 @@ import scala.concurrent.ExecutionContext
 object HttpServer {
   def start(interface: String, port: Int): Unit = {
     val bossGroup = new NioEventLoopGroup(1, NamedThreadFactory("boss"))
-    val workerGroup = new NioEventLoopGroup(Runtime.getRuntime.availableProcessors, NamedThreadFactory("worker"))
+    val workerGroup = new NioEventLoopGroup(Runtime.getRuntime().availableProcessors(), NamedThreadFactory("worker"))
     val blockingGroup = new DefaultEventExecutorGroup(4, NamedThreadFactory("blocking-io"))
     val restApiPool: java.util.concurrent.ExecutorService =
-      Executors.newFixedThreadPool(Runtime.getRuntime.availableProcessors(), netty.NamedThreadFactory("api"))
+      Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors(), netty.NamedThreadFactory("api"))
 
     try {
       val bootstrap = new ServerBootstrap
